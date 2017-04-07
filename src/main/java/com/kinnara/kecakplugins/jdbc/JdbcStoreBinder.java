@@ -38,16 +38,21 @@ import org.joget.workflow.model.service.WorkflowUserManager;
 import org.joget.workflow.util.WorkflowUtil;
 import org.json.JSONObject;
 
+/**
+ * 
+ * @author aristo
+ *
+ */
 public class JdbcStoreBinder extends FormBinder implements FormStoreBinder, FormStoreElementBinder, FormStoreMultiRowElementBinder, PluginWebSupport {
     
     private final static String MESSAGE_PATH = "messages/JdbcStoreBinder";
     
     public String getName() {
-        return "JDBC Store Binder";
+        return "Kecak JDBC Store Binder";
     }
 
     public String getVersion() {
-        return "5.0.2";
+    	return getClass().getPackage().getImplementationVersion();
     }
     
     public String getClassName() {
@@ -55,13 +60,11 @@ public class JdbcStoreBinder extends FormBinder implements FormStoreBinder, Form
     }
 
     public String getLabel() {
-        //support i18n
-        return AppPluginUtil.getMessage("org.joget.tutorial.JdbcStoreBinder.pluginLabel", getClassName(), MESSAGE_PATH);
+        return getName();
     }
     
     public String getDescription() {
-        //support i18n
-        return AppPluginUtil.getMessage("org.joget.tutorial.JdbcStoreBinder.pluginDesc", getClassName(), MESSAGE_PATH);
+    	return "Artifact ID : kecak-plugins-jdbc";
     }
 
     public String getPropertyOptions() {
@@ -72,78 +75,68 @@ public class JdbcStoreBinder extends FormBinder implements FormStoreBinder, Form
         Form parentForm = FormUtil.findRootForm(element);
         String primaryKeyValue = parentForm.getPrimaryKeyValue(formData);
             
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
+        
+        
         
         try {
             DataSource ds = createDataSource();
-            con = ds.getConnection();
             
-            //check for deletion
-            FormRowSet originalRowSet = formData.getLoadBinderData(element);
-            if (originalRowSet != null && !originalRowSet.isEmpty()) {
-                for (FormRow r : originalRowSet) {
-                    if (!rows.contains(r)) {
-                        String query = getPropertyString("delete_sql");    
-                        pstmt = con.prepareStatement(getQuery(query));
-                        int i = 1;
-                        for (String obj : getParams(query, r, primaryKeyValue)) {
-                            pstmt.setObject(i, obj);
-                            i++;
-                        }
-                        pstmt.executeUpdate();
-                    }
-                }
-            }
+            try(Connection con = ds.getConnection()) {
             
-            if (!(rows == null || rows.isEmpty())) {
             
-                //run query for each row
-                for (FormRow row : rows) {
-                    //check to use insert query or update query
-                    String checkSql = getPropertyString("check_sql");
-                    pstmt = con.prepareStatement(getQuery(checkSql));
-
-                    int i = 1;
-                    for (String obj : getParams(checkSql, row, primaryKeyValue)) {
-                        pstmt.setObject(i, obj);
-                        i++;
-                    }
-
-                    String query = getPropertyString("insert_sql");
-                    rs = pstmt.executeQuery();
-
-                    //record exist, use update query
-                    if (rs.next()) {
-                        query = getPropertyString("update_sql");
-                    }
-
-                    pstmt = con.prepareStatement(getQuery(query));
-                    i = 1;
-                    for (String obj : getParams(query, row, primaryKeyValue)) {
-                        pstmt.setObject(i, obj);
-                        i++;
-                    }
-                    pstmt.executeUpdate();
-                }
+	            //check for deletion
+	            FormRowSet originalRowSet = formData.getLoadBinderData(element);
+	            if (originalRowSet != null && !originalRowSet.isEmpty()) {
+	                for (FormRow r : originalRowSet) {
+	                    if (!rows.contains(r)) {
+	                        String query = getPropertyString("delete_sql");
+	                        try(PreparedStatement pstmt = con.prepareStatement(getQuery(query))) {
+		                        int i = 1;
+		                        for (String obj : getParams(query, r, primaryKeyValue)) {
+		                            pstmt.setObject(i, obj);
+		                            i++;
+		                        }
+		                        pstmt.executeUpdate();
+	                        }
+	                    }
+	                }
+	            }
+	            
+	            if (!(rows == null || rows.isEmpty())) {
+	                //run query for each row
+	                for (FormRow row : rows) {
+	                    //check to use insert query or update query
+	                    String checkSql = getPropertyString("check_sql");
+	                    try(PreparedStatement pstmt = con.prepareStatement(getQuery(checkSql))) {
+		                    int i = 1;
+		                    for (String obj : getParams(checkSql, row, primaryKeyValue)) {
+		                        pstmt.setObject(i, obj);
+		                        i++;
+		                    }
+		
+		                    String query = getPropertyString("insert_sql");
+		                    
+		                    try(ResultSet rs = pstmt.executeQuery()) {
+			                    //record exist, use update query
+			                    if (rs.next()) {
+			                        query = getPropertyString("update_sql");
+			                        
+			                        try(PreparedStatement pstmtUpdate = con.prepareStatement(getQuery(query))) {
+					                    i = 1;
+					                    for (String obj : getParams(query, row, primaryKeyValue)) {
+					                    	pstmtUpdate.setObject(i, obj);
+					                        i++;
+					                    }
+					                    pstmtUpdate.executeUpdate();
+				                    }
+			                    }
+		                    }
+	                    }
+	                }
+	            }
             }
         } catch (Exception e) {
             LogUtil.error(getClassName(), e, "");
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (con != null) {
-                    con.close();
-                }
-            } catch (Exception e) {
-                LogUtil.error(getClassName(), e, "");
-            }
         }
         
         return rows;

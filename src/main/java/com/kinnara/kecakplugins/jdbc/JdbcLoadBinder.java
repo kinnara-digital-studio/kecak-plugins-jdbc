@@ -6,10 +6,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.Properties;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.joget.apps.app.model.AppDefinition;
 import org.joget.apps.app.service.AppPluginUtil;
@@ -31,16 +33,21 @@ import org.joget.workflow.model.service.WorkflowUserManager;
 import org.joget.workflow.util.WorkflowUtil;
 import org.json.JSONObject;
 
+/**
+ * 
+ * @author aristo
+ *
+ */
 public class JdbcLoadBinder extends FormBinder implements FormLoadBinder, FormLoadElementBinder, FormLoadMultiRowElementBinder, PluginWebSupport {
     
     private final static String MESSAGE_PATH = "messages/JdbcLoadBinder";
     
     public String getName() {
-        return "JDBC Load Binder";
+        return "Kecak JDBC Load Binder";
     }
 
     public String getVersion() {
-        return "5.0.1";
+        return getClass().getPackage().getImplementationVersion();
     }
     
     public String getClassName() {
@@ -53,8 +60,7 @@ public class JdbcLoadBinder extends FormBinder implements FormLoadBinder, FormLo
     }
     
     public String getDescription() {
-        //support i18n
-        return AppPluginUtil.getMessage("org.joget.tutorial.JdbcLoadBinder.pluginDesc", getClassName(), MESSAGE_PATH);
+    	return "Artifact ID : kecak-plugins-jdbc";
     }
 
     public String getPropertyOptions() {
@@ -71,65 +77,49 @@ public class JdbcLoadBinder extends FormBinder implements FormLoadBinder, FormLo
             return rows;
         }
         
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        
         try {
-            DataSource ds = createDataSource();
-            con = ds.getConnection();
-            
-            pstmt = con.prepareStatement(sql);
-            
-            //set query parameters
-            if (sql.contains("?") && primaryKey != null && !primaryKey.isEmpty()) {
-                pstmt.setObject(1, primaryKey);
-            }
-            
-            rs = pstmt.executeQuery();
-            ResultSetMetaData rsmd = rs.getMetaData();
-
-            int columnsNumber = rsmd.getColumnCount();
-            
-            // Set retrieved result to Form Row Set
-            while (rs.next()) {
-                FormRow row = new FormRow();
+        	DataSource ds = createDataSource();
+        	try (
+            		Connection con = ds.getConnection();
+            		PreparedStatement pstmt = con.prepareStatement(sql); ) {
                 
-                //get the name of each column as field id 
-                for (int i = 1; i <= columnsNumber; i++) {
-                    String name = rsmd.getColumnLabel(i);
-                    String value = rs.getString(name);
-                    
-                    if (FormUtil.PROPERTY_ID.equals(name)) {
-                        row.setId(value);
-                    } else {
-                        row.setProperty(name, (value != null)?value:"");
-                        
-                        //cater for form data column as well
-                        if (name.startsWith("c_")) {
-                            row.setProperty(name.replaceFirst("c_", ""), (value != null)?value:"");
-                        }
-                    }
+                //set query parameters
+                if (sql.contains("?") && primaryKey != null && !primaryKey.isEmpty()) {
+                    pstmt.setObject(1, primaryKey);
                 }
                 
-                rows.add(row);
+                try( ResultSet rs = pstmt.executeQuery() ) {
+                	
+    	            ResultSetMetaData rsmd = rs.getMetaData();
+    	            int columnsNumber = rsmd.getColumnCount();
+    	            
+    	            // Set retrieved result to Form Row Set
+    	            while (rs.next()) {
+    	                FormRow row = new FormRow();
+    	                
+    	                //get the name of each column as field id 
+    	                for (int i = 1; i <= columnsNumber; i++) {
+    	                    String name = rsmd.getColumnLabel(i);
+    	                    String value = rs.getString(name);
+    	                    
+    	                    if (FormUtil.PROPERTY_ID.equals(name)) {
+    	                        row.setId(value);
+    	                    } else {
+    	                        row.setProperty(name, (value != null)?value:"");
+    	                        
+    	                        //cater for form data column as well
+    	                        if (name.startsWith("c_")) {
+    	                            row.setProperty(name.replaceFirst("c_", ""), (value != null)?value:"");
+    	                        }
+    	                    }
+    	                }
+    	                
+    	                rows.add(row);
+    	            }
+                }
             }
         } catch (Exception e) {
             LogUtil.error(getClassName(), e, "");
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (con != null) {
-                    con.close();
-                }
-            } catch (Exception e) {
-                LogUtil.error(getClassName(), e, "");
-            }
         }
         
         return rows;

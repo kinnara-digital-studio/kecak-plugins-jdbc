@@ -1,0 +1,71 @@
+[{
+    title : '@@datalist.jdbcDataListBinder.config@@',
+    properties : [{
+        name : 'jdbcDatasource',
+        label : '@@datalist.jdbcDataListBinder.datasource@@',
+        description : '@@datalist.jdbcDataListBinder.datasource.desc@@',
+        type : 'selectbox',
+        options : [{
+            value : 'custom',
+            label : '@@datalist.jdbcDataListBinder.customDatasource@@'
+        },{
+            value : 'default',
+            label : '@@datalist.jdbcDataListBinder.defaultDatasource@@'
+        }],
+        value : 'custom'
+    },{
+        name : 'jdbcDriver',
+        label : '@@datalist.jdbcDataListBinder.driver@@',
+        description : '@@datalist.jdbcDataListBinder.driver.desc@@',
+        type : 'textfield',
+        value : 'com.mysql.jdbc.Driver',
+        required : 'false'
+    },{
+        name : 'jdbcUrl',
+        label : '@@datalist.jdbcDataListBinder.url@@',
+        type : 'textfield',
+        value : 'jdbc:mysql://localhost/jwdb?characterEncoding=UTF8',
+        required : 'false'
+},{
+        name : 'jdbcUser',
+        label : '@@datalist.jdbcDataListBinder.username@@',
+        type : 'textfield',
+        value : 'root'
+    },{
+        name : 'jdbcPassword',
+        label : '@@datalist.jdbcDataListBinder.password@@',
+        type : 'password',
+        value : ''
+    },{
+        name : 'sql',
+        label : '@@datalist.jdbcDataListBinder.query.select@@',
+        type : 'textarea',
+        value : 'SELECT * FROM dir_user',
+        type : 'codeeditor',
+        mode: 'sql',
+        rows : '7',
+        cols : '65',
+        required : 'true'
+    },{
+        name : 'sqlCount',
+        label : '@@datalist.jdbcDataListBinder.query.count@@',
+        type : 'codeeditor',
+        mode: 'sql',
+        value : 'SELECT COUNT(*) AS counter FROM dir_user',
+        description: 'put "AS COUNTER" after "SELECT COUNT"',
+        rows : '7',
+        cols : '65',
+        required : 'true'
+    },{
+    	name : 'counterColumn',
+    	label : '@@datalist.jdbcDatalistBinder.query.counterColumn@@',
+    	value : 'counter',
+    	required : 'true'
+    },{
+        name : 'primaryKey',
+        label : '@@datalist.jdbcDataListBinder.query.primaryKey@@',
+        type : 'textfield',
+        value : 'id',
+        required : 'true'
+    }]
+}]

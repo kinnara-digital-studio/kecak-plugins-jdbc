@@ -17,6 +17,7 @@ public class Activator implements BundleActivator {
         registrationList.add(context.registerService(JdbcLoadBinder.class.getName(), new JdbcLoadBinder(), null));
         registrationList.add(context.registerService(JdbcStoreBinder.class.getName(), new JdbcStoreBinder(), null));
         registrationList.add(context.registerService(JdbcOptionsBinder.class.getName(), new JdbcOptionsBinder(), null));
+        registrationList.add(context.registerService(JdbcDatalistBinder.class.getName(), new JdbcDatalistBinder(), null));
     }
 
     public void stop(BundleContext context) {

@@ -6,10 +6,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.Properties;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.joget.apps.app.model.AppDefinition;
 import org.joget.apps.app.service.AppPluginUtil;
@@ -30,16 +32,21 @@ import org.joget.workflow.model.service.WorkflowUserManager;
 import org.joget.workflow.util.WorkflowUtil;
 import org.json.JSONObject;
 
+/**
+ * 
+ * @author aristo
+ *
+ */
 public class JdbcOptionsBinder extends FormBinder implements FormLoadOptionsBinder, FormAjaxOptionsBinder, PluginWebSupport {
 
     private final static String MESSAGE_PATH = "messages/JdbcOptionsBinder";
     
     public String getName() {
-        return "JDBC Option Binder";
+        return "Kecak JDBC Option Binder";
     }
 
     public String getVersion() {
-        return "5.0.1";
+    	return getClass().getPackage().getImplementationVersion();
     }
     
     public String getClassName() {
@@ -47,13 +54,11 @@ public class JdbcOptionsBinder extends FormBinder implements FormLoadOptionsBind
     }
 
     public String getLabel() {
-        //support i18n
-        return AppPluginUtil.getMessage("org.joget.tutorial.JdbcOptionsBinder.pluginLabel", getClassName(), MESSAGE_PATH);
+        return getName();
     }
     
     public String getDescription() {
-        //support i18n
-        return AppPluginUtil.getMessage("org.joget.tutorial.JdbcOptionsBinder.pluginDesc", getClassName(), MESSAGE_PATH);
+    	return "Artifact ID : kecak-plugins-jdbc";
     }
 
     public String getPropertyOptions() {
@@ -86,70 +91,53 @@ public class JdbcOptionsBinder extends FormBinder implements FormLoadOptionsBind
             return rows;
         }
         
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        
         try {
             DataSource ds = createDataSource();
-            con = ds.getConnection();
-            
-            //support for multiple dependency values
-            if (sql.contains("?") && dependencyValues != null && dependencyValues.length > 1) {
-                String mark = "?";
-                for (int i = 1; i < dependencyValues.length; i++) {
-                    mark += ", ?";
-                }
-                sql = sql.replace("?", mark);
-            }
-            
-            pstmt = con.prepareStatement(sql);
-            
-            //set query parameters
-            if (sql.contains("?") && dependencyValues != null && dependencyValues.length > 0) {
-                for (int i = 0; i < dependencyValues.length; i++) {
-                    pstmt.setObject(i + 1, dependencyValues[i]);
-                }
-            }
-            
-            rs = pstmt.executeQuery();
-            ResultSetMetaData rsmd = rs.getMetaData();
+            try(Connection con = ds.getConnection()) {
+	            //support for multiple dependency values
+	            if (sql.contains("?") && dependencyValues != null && dependencyValues.length > 1) {
+	                String mark = "?";
+	                for (int i = 1; i < dependencyValues.length; i++) {
+	                    mark += ", ?";
+	                }
+	                sql = sql.replace("?", mark);
+	            }
+	            
+	            try(PreparedStatement pstmt = con.prepareStatement(sql)) {
+		            //set query parameters
+		            if (sql.contains("?") && dependencyValues != null && dependencyValues.length > 0) {
+		                for (int i = 0; i < dependencyValues.length; i++) {
+		                    pstmt.setObject(i + 1, dependencyValues[i]);
+		                }
+		            }
 
-            int columnsNumber = rsmd.getColumnCount();
-            
-            // Set retrieved result to Form Row Set
-            while (rs.next()) {
-                FormRow row = new FormRow();
-                
-                String value = rs.getString(1);
-                String label = rs.getString(2);
-                
-                row.setProperty(FormUtil.PROPERTY_VALUE, (value != null)?value:"");
-                row.setProperty(FormUtil.PROPERTY_LABEL, (label != null)?label:"");
-                
-                if (columnsNumber > 2) {
-                    String grouping = rs.getString(3);
-                    row.setProperty(FormUtil.PROPERTY_GROUPING, grouping);
-                }
-                
-                rows.add(row);
+		            try(ResultSet rs = pstmt.executeQuery()) {
+			            ResultSetMetaData rsmd = rs.getMetaData();
+			
+			            int columnsNumber = rsmd.getColumnCount();
+			            
+			            // Set retrieved result to Form Row Set
+			            while (rs.next()) {
+			                FormRow row = new FormRow();
+			                
+			                String value = rs.getString(1);
+			                String label = rs.getString(2);
+			                
+			                row.setProperty(FormUtil.PROPERTY_VALUE, (value != null)?value:"");
+			                row.setProperty(FormUtil.PROPERTY_LABEL, (label != null)?label:"");
+			                
+			                if (columnsNumber > 2) {
+			                    String grouping = rs.getString(3);
+			                    row.setProperty(FormUtil.PROPERTY_GROUPING, grouping);
+			                }
+			                
+			                rows.add(row);
+			            }
+		            }
+	            }
             }
         } catch (Exception e) {
             LogUtil.error(getClassName(), e, "");
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (con != null) {
-                    con.close();
-                }
-            } catch (Exception e) {
-                LogUtil.error(getClassName(), e, "");
-            }
         }
         
         return rows;
