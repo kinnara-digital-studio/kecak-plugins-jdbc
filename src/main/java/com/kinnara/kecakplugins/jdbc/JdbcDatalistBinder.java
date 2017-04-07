@@ -32,7 +32,7 @@ import oracle.sql.TIMESTAMP;
  */
 public class JdbcDatalistBinder extends DataListBinderDefault {
 
-	public static int MAXROWS = 500;
+	public static int MAXROWS = 512;
     public static String ALIAS = "temp";
     public static String SPACE = " ";
 
@@ -236,14 +236,8 @@ public class JdbcDatalistBinder extends DataListBinderDefault {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	protected DataListCollection executeQuery(DataList dataList, DataSource ds, String sql, String[] values, Integer start, Integer rows) throws SQLException {
-        DataListCollection results;
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        results = new DataListCollection();
-        try {
-            con = ds.getConnection();
-            pstmt = con.prepareStatement(sql);
+        DataListCollection results = new DataListCollection();
+        try(Connection con = ds.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql);) {
             if (start == null || start < 0) {
                 start = 0;
             }
@@ -256,38 +250,29 @@ public class JdbcDatalistBinder extends DataListBinderDefault {
                     pstmt.setObject(i + 1, values[i]);
                 }
             }
-            rs = pstmt.executeQuery();
-            DataListColumn[] columns = this.getColumns();
-            int count = 0;
-            while (rs.next()) {
-                HashMap<String, String> row = new HashMap<String, String>();
-                if (count++ < start) {
-                    continue;
-                }
-                if (columns != null) {
-                    for (DataListColumn column : columns) {
-                        String columnName = column.getName();
-                        Object obj = rs.getObject(columnName);
-                        String columnValue = obj != null ? obj.toString() : "";
-                        if (obj instanceof TIMESTAMP) {
-                            TIMESTAMP timestamp = (TIMESTAMP) obj;
-                            columnValue = timestamp.stringValue();
-                        }
-                        row.put(columnName, columnValue);
-                        //row.put(columnName.toLowerCase(), columnValue);
-                    }
-                }
-                results.add(row);
-            }
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
+            try(ResultSet rs = pstmt.executeQuery()) {
+	            DataListColumn[] columns = this.getColumns();
+	            int count = 0;
+	            while (rs.next()) {
+	                HashMap<String, String> row = new HashMap<String, String>();
+	                if (count++ < start) {
+	                    continue;
+	                }
+	                if (columns != null) {
+	                    for (DataListColumn column : columns) {
+	                        String columnName = column.getName();
+	                        Object obj = rs.getObject(columnName);
+	                        String columnValue = obj != null ? obj.toString() : "";
+	                        if (obj instanceof TIMESTAMP) {
+	                            TIMESTAMP timestamp = (TIMESTAMP) obj;
+	                            columnValue = timestamp.stringValue();
+	                        }
+	                        row.put(columnName, columnValue);
+	                        //row.put(columnName.toLowerCase(), columnValue);
+	                    }
+	                }
+	                results.add(row);
+	            }
             }
         }
         return results;

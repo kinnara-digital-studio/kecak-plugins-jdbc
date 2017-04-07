@@ -79,10 +79,7 @@ public class JdbcLoadBinder extends FormBinder implements FormLoadBinder, FormLo
         
         try {
         	DataSource ds = createDataSource();
-        	try (
-            		Connection con = ds.getConnection();
-            		PreparedStatement pstmt = con.prepareStatement(sql); ) {
-                
+        	try (Connection con = ds.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql); ) {
                 //set query parameters
                 if (sql.contains("?") && primaryKey != null && !primaryKey.isEmpty()) {
                     pstmt.setObject(1, primaryKey);
