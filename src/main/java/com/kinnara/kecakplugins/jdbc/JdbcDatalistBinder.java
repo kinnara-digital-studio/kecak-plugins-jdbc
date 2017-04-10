@@ -51,7 +51,7 @@ public class JdbcDatalistBinder extends DataListBinderDefault {
     }
 
     public String getLabel() {
-        return "Kecak JDBC Datalist Binder";
+        return getName();
     }
 
     public String getPropertyOptions() {
