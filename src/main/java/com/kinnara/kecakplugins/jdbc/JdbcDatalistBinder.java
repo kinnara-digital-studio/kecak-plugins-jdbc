@@ -139,12 +139,9 @@ public class JdbcDatalistBinder extends DataListBinderDefault {
 
     protected DataListColumn[] queryMetaData(DataSource ds, String sql) throws SQLException {
         ArrayList<DataListColumn> columns;
-        Connection con = null;
-        PreparedStatement pstmt = null;
         columns = new ArrayList<DataListColumn>();
-        try {
-            con = ds.getConnection();
-            pstmt = con.prepareStatement(sql);
+        try(Connection con = ds.getConnection();
+        		PreparedStatement pstmt = con.prepareStatement(sql);) {
             String driver = this.getPropertyString("jdbcDriver");
             String datasource = this.getPropertyString("jdbcDatasource");
             if (datasource != null && "default".equals(datasource)) {
@@ -166,14 +163,8 @@ public class JdbcDatalistBinder extends DataListBinderDefault {
                 column.setType(type);
                 columns.add(column);
             }
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
         }
+        
         DataListColumn[] columnArray = columns.toArray((DataListColumn[]) new DataListColumn[0]);
         return columnArray;
     }
@@ -279,49 +270,27 @@ public class JdbcDatalistBinder extends DataListBinderDefault {
     }
 
     protected int executeQueryCount(DataList dataList, DataSource ds, String sql, String[] values) {
-        int count;
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        count = -1;
-
+        int count = -1;
+        
         if (sql != null && sql.trim().length() > 0) {
-            try {
-                con = ds.getConnection();
-                pstmt = con.prepareStatement(sql);
+            try( Connection con = ds.getConnection(); 
+            		PreparedStatement pstmt = con.prepareStatement(sql); ) {
+                
+                
                 if (values != null && values.length > 0) {
                     for (int i = 0; i < values.length; ++i) {
                         pstmt.setObject(i + 1, values[i]);
                     }
                 }
-                if ((rs = pstmt.executeQuery()).next()) {
-                    count = rs.getInt(1);
+                
+                try(ResultSet rs = pstmt.executeQuery()) {
+	                if (rs.next()) {
+	                    count = rs.getInt(1);
+	                }
                 }
             } catch (SQLException e) {
 				e.printStackTrace();
-			} finally {
-                if (rs != null) {
-                    try {
-						rs.close();
-					} catch (SQLException e) {
-						LogUtil.error(getClassName(), e, e.getMessage());
-					}
-                }
-                if (pstmt != null) {
-                    try {
-						pstmt.close();
-					} catch (SQLException e) {
-						LogUtil.error(getClassName(), e, e.getMessage());
-					}
-                }
-                if (con != null) {
-                    try {
-						con.close();
-					} catch (SQLException e) {
-						LogUtil.error(getClassName(), e, e.getMessage());
-					}
-                }
-            }
+			}
         }
         return count;
     }

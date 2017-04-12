@@ -6,7 +6,7 @@
     <packaging>bundle</packaging>
     <version>1.0.0</version>
     <name>kecak-plugins-jdbc</name>
-    <url>http://www.kinnara.com</url>
+    <url>http://www.kecak.com</url>
     <build>
         <plugins>
             <plugin>
