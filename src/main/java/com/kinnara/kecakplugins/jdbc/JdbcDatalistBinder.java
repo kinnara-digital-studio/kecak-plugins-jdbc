@@ -47,7 +47,7 @@ public class JdbcDatalistBinder extends DataListBinderDefault {
     }
 
     public String getDescription() {
-        return "Artifact ID : kecak-plugins-jdbc";
+    	return "Artifact ID : " + getClass().getPackage().getImplementationTitle();
     }
 
     public String getLabel() {
@@ -55,8 +55,7 @@ public class JdbcDatalistBinder extends DataListBinderDefault {
     }
 
     public String getPropertyOptions() {
-        String json = AppUtil.readPluginResource(this.getClass().getName(), "/properties/jdbcDataListBinder.json", (Object[]) null, (boolean) true, "message/JdbcDataListBinder");
-        return json;
+    	return AppUtil.readPluginResource(getClassName(), "/properties/JdbcDataListBinder.json", new Object[] { JdbcTestConnectionApi.class.getName() }, true, "/messages/JdbcDataListBinder");
     }
 
     public DataListColumn[] getColumns() {

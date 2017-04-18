@@ -1,21 +1,21 @@
 [{
-    title : '@@form.jdbcOptionsBinder.config@@',
+    title : '@@form.jdbcStoreBinder.config@@',
     properties : [{
         name : 'jdbcDatasource',
-        label : '@@form.jdbcOptionsBinder.datasource@@',
+        label : '@@form.jdbcStoreBinder.datasource@@',
         type : 'selectbox',
         options : [{
             value : 'custom',
-            label : '@@form.jdbcOptionsBinder.customDatasource@@'
+            label : '@@form.jdbcStoreBinder.customDatasource@@'
         },{
             value : 'default',
-            label : '@@form.jdbcOptionsBinder.defaultDatasource@@'
+            label : '@@form.jdbcStoreBinder.defaultDatasource@@'
         }],
         value : 'default'
     },{
         name : 'jdbcDriver',
-        label : '@@form.jdbcOptionsBinder.driver@@',
-        description : '@@form.jdbcOptionsBinder.driver.desc@@',
+        label : '@@form.jdbcStoreBinder.driver@@',
+        description : '@@form.jdbcStoreBinder.driver.desc@@',
         type : 'textfield',
         value : 'com.mysql.jdbc.Driver',
         control_field: 'jdbcDatasource',
@@ -24,7 +24,7 @@
         required : 'true'
     },{
         name : 'jdbcUrl',
-        label : '@@form.jdbcOptionsBinder.url@@',
+        label : '@@form.jdbcStoreBinder.url@@',
         type : 'textfield',
         value : 'jdbc:mysql://localhost/jwdb?characterEncoding=UTF8',
         control_field: 'jdbcDatasource',
@@ -33,7 +33,7 @@
         required : 'true'
     },{
         name : 'jdbcUser',
-        label : '@@form.jdbcOptionsBinder.username@@',
+        label : '@@form.jdbcStoreBinder.username@@',
         type : 'textfield',
         control_field: 'jdbcDatasource',
         control_value: 'custom',
@@ -42,48 +42,45 @@
         required : 'true'
     },{
         name : 'jdbcPassword',
-        label : '@@form.jdbcOptionsBinder.password@@',
+        label : '@@form.jdbcStoreBinder.password@@',
         type : 'password',
         control_field: 'jdbcDatasource',
         control_value: 'custom',
         control_use_regex: 'false',
         value : ''
     },{
-        name : 'useAjax',
-        label : '@@form.jdbcOptionsBinder.useAjax@@',
-        type : 'checkbox',
-        options : [{
-            value : 'true',
-            label : ''
-        }]
+        name : 'check_sql',
+        label : '@@form.jdbcStoreBinder.check_sql@@',
+        description : '@@form.jdbcStoreBinder.check_sql.desc@@',
+        type : 'codeeditor',
+        mode : 'sql',
+        required : 'true'
     },{
-        name : 'addEmpty',
-        label : '@@form.jdbcOptionsBinder.addEmpty@@',
-        type : 'checkbox',
-        options : [{
-            value : 'true',
-            label : ''
-        }]
+        name : 'insert_sql',
+        label : '@@form.jdbcStoreBinder.insert_sql@@',
+        description : '@@form.jdbcStoreBinder.insert_sql.desc@@',
+        type : 'codeeditor',
+        mode : 'sql',
+        required : 'true'
     },{
-        name : 'emptyLabel',
-        label : '@@form.jdbcOptionsBinder.emptyLabel@@',
-        type : 'textfield',
-        control_field: 'addEmpty',
-        control_value: 'true',
-        control_use_regex: 'false',
-        value : ''
+        name : 'update_sql',
+        label : '@@form.jdbcStoreBinder.update_sql@@',
+        description : '@@form.jdbcStoreBinder.update_sql.desc@@',
+        type : 'codeeditor',
+        mode : 'sql',
+        required : 'true'
     },{
-        name : 'sql',
-        label : '@@form.jdbcOptionsBinder.sql@@',
-        description : '@@form.jdbcOptionsBinder.sql.desc@@',
+        name : 'delete_sql',
+        label : '@@form.jdbcStoreBinder.delete_sql@@',
+        description : '@@form.jdbcStoreBinder.delete_sql.desc@@',
         type : 'codeeditor',
         mode : 'sql',
         required : 'true'
     }],
     buttons : [{
         name : 'testConnection',    
-        label : '@@form.jdbcOptionsBinder.testConnection@@',
-        ajax_url : '[CONTEXT_PATH]/web/json/app[APP_PATH]/plugin/org.joget.tutorial.JdbcOptionsBinder/service?action=testConnection',
+        label : '@@form.jdbcStoreBinder.testConnection@@',
+        ajax_url : '[CONTEXT_PATH]/web/json/plugin/%s/service?action=testConnection',
         fields : ['jdbcDriver', 'jdbcUrl', 'jdbcUser', 'jdbcPassword'],
         control_field: 'jdbcDatasource',
         control_value: 'custom',

@@ -59,7 +59,7 @@
     buttons : [{
         name : 'testConnection',    
         label : '@@form.jdbcLoadBinder.testConnection@@',
-        ajax_url : '[CONTEXT_PATH]/web/json/app[APP_PATH]/plugin/org.joget.tutorial.JdbcLoadBinder/service?action=testConnection',
+        ajax_url : '[CONTEXT_PATH]/web/json/plugin/%s/service?action=testConnection',
         fields : ['jdbcDriver', 'jdbcUrl', 'jdbcUser', 'jdbcPassword'],
         control_field: 'jdbcDatasource',
         control_value: 'custom',
