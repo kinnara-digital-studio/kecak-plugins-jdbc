@@ -12,7 +12,7 @@
             value : 'default',
             label : '@@datalist.jdbcDataListBinder.defaultDatasource@@'
         }],
-        value : 'custom'
+        value : 'default'
     },{
         name : 'jdbcDriver',
         label : '@@datalist.jdbcDataListBinder.driver@@',

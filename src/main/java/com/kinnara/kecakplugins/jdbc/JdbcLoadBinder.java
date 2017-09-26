@@ -20,6 +20,9 @@ import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
 import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
+import org.joget.workflow.model.WorkflowAssignment;
+import org.joget.workflow.model.service.WorkflowManager;
+import org.springframework.context.ApplicationContext;
 
 /**
  * 
@@ -31,7 +34,7 @@ public class JdbcLoadBinder extends FormBinder implements FormLoadBinder, FormLo
     private final static String MESSAGE_PATH = "messages/JdbcLoadBinder";
     
     public String getName() {
-        return "Kecak JDBC Load Binder";
+        return "JDBC Load Binder";
     }
 
     public String getVersion() {
@@ -47,7 +50,7 @@ public class JdbcLoadBinder extends FormBinder implements FormLoadBinder, FormLo
     }
     
     public String getDescription() {
-    	return "Artifact ID : " + getClass().getPackage().getImplementationTitle();
+    	return "Kecak Plugins; Artifact ID : " + getClass().getPackage().getImplementationTitle();
     }
 
     public String getPropertyOptions() {
@@ -57,9 +60,13 @@ public class JdbcLoadBinder extends FormBinder implements FormLoadBinder, FormLo
     public FormRowSet load(Element element, String primaryKey, FormData formData) {
         FormRowSet rows = new FormRowSet();
         rows.setMultiRow(true);
-        
+
+        ApplicationContext appContext = AppUtil.getApplicationContext();
+        WorkflowManager wfManager = (WorkflowManager)appContext.getBean("workflowManager");
+        WorkflowAssignment wfAssignment = (WorkflowAssignment) wfManager.getAssignment(formData.getActivityId());
+
         //Check the sql. If require primary key and primary key is null, return empty result.
-        String sql = getPropertyString("sql");
+        String sql = AppUtil.processHashVariable(getPropertyString("sql"), wfAssignment, null, null);
         if ((primaryKey == null || primaryKey.isEmpty()) && sql.contains("?")) {
             return rows;
         }

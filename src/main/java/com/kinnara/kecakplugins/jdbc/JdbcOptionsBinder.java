@@ -29,7 +29,7 @@ public class JdbcOptionsBinder extends FormBinder implements FormLoadOptionsBind
     private final static String MESSAGE_PATH = "messages/JdbcOptionsBinder";
     
     public String getName() {
-        return "Kecak JDBC Option Binder";
+        return "JDBC Option Binder";
     }
 
     public String getVersion() {
@@ -45,7 +45,7 @@ public class JdbcOptionsBinder extends FormBinder implements FormLoadOptionsBind
     }
     
     public String getDescription() {
-    	return "Artifact ID : " + getClass().getPackage().getImplementationTitle();
+    	return "Kecak Plugins; Artifact ID : " + getClass().getPackage().getImplementationTitle();
     }
 
     public String getPropertyOptions() {

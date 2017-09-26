@@ -36,7 +36,7 @@ public class JdbcStoreBinder extends FormBinder implements FormStoreBinder, Form
     private final static String MESSAGE_PATH = "messages/JdbcStoreBinder";
     
     public String getName() {
-        return "Kecak JDBC Store Binder";
+        return "JDBC Store Binder";
     }
 
     public String getVersion() {
@@ -52,7 +52,7 @@ public class JdbcStoreBinder extends FormBinder implements FormStoreBinder, Form
     }
     
     public String getDescription() {
-    	return "Artifact ID : " + getClass().getPackage().getImplementationTitle();
+    	return "Kecak Plugins; Artifact ID : " + getClass().getPackage().getImplementationTitle();
     }
 
     public String getPropertyOptions() {

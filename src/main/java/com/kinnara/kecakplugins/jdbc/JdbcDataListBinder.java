@@ -30,7 +30,7 @@ import oracle.sql.TIMESTAMP;
  * @author aristo
  *
  */
-public class JdbcDatalistBinder extends DataListBinderDefault {
+public class JdbcDataListBinder extends DataListBinderDefault {
 
 	public static int MAXROWS = 512;
     public static String ALIAS = "temp";
@@ -39,7 +39,7 @@ public class JdbcDatalistBinder extends DataListBinderDefault {
     private DataListColumn[] columns;
 
     public String getName() {
-        return "Kecak JDBC Datalist Binder";
+        return "JDBC Datalist Binder";
     }
 
     public String getVersion() {
@@ -47,7 +47,7 @@ public class JdbcDatalistBinder extends DataListBinderDefault {
     }
 
     public String getDescription() {
-    	return "Artifact ID : " + getClass().getPackage().getImplementationTitle();
+    	return "Kecak Plugins; Artifact ID : " + getClass().getPackage().getImplementationTitle();
     }
 
     public String getLabel() {
