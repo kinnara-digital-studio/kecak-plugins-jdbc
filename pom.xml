@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.kinnara.kecakplugins.jdbc</groupId>
+    <groupId>com.kinnara.kecakplugins</groupId>
     <artifactId>kecak-plugins-jdbc</artifactId>
     <packaging>bundle</packaging>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <name>kecak-plugins-jdbc</name>
     <url>http://www.kecak.com</url>
     <build>
@@ -20,6 +20,7 @@
             <plugin>
 	            <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
                 <configuration>
                     <archive>
                         <manifest>
