@@ -1,28 +1,23 @@
 package com.kinnara.kecakplugins.jdbc;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.util.Properties;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.joget.apps.app.service.AppUtil;
-import org.joget.apps.form.model.Element;
-import org.joget.apps.form.model.FormBinder;
-import org.joget.apps.form.model.FormData;
-import org.joget.apps.form.model.FormLoadBinder;
-import org.joget.apps.form.model.FormLoadElementBinder;
-import org.joget.apps.form.model.FormLoadMultiRowElementBinder;
-import org.joget.apps.form.model.FormRow;
-import org.joget.apps.form.model.FormRowSet;
+import org.joget.apps.form.model.*;
 import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
 import org.joget.workflow.model.WorkflowAssignment;
 import org.joget.workflow.model.service.WorkflowManager;
 import org.springframework.context.ApplicationContext;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.util.Map;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 
@@ -57,13 +52,16 @@ public class JdbcLoadBinder extends FormBinder implements FormLoadBinder, FormLo
         return AppUtil.readPluginResource(getClassName(), "/properties/JdbcLoadBinder.json", new Object[] { JdbcTestConnectionApi.class.getName() }, true, MESSAGE_PATH);
     }
 
+//    private final Pattern PATTERN_FIELD_NAME = Pattern.compile("(?<=\\$\\{)[^\\\\}]+(?=})");
+    private final Pattern PATTERN_REPLACE_WITH_FIELD_VALUE = Pattern.compile("\\$\\{[^\\}]+\\}");
+
     public FormRowSet load(Element element, String primaryKey, FormData formData) {
         FormRowSet rows = new FormRowSet();
         rows.setMultiRow(true);
 
         ApplicationContext appContext = AppUtil.getApplicationContext();
         WorkflowManager wfManager = (WorkflowManager)appContext.getBean("workflowManager");
-        WorkflowAssignment wfAssignment = (WorkflowAssignment) wfManager.getAssignment(formData.getActivityId());
+        WorkflowAssignment wfAssignment = wfManager.getAssignment(formData.getActivityId());
 
         //Check the sql. If require primary key and primary key is null, return empty result.
         String sql = AppUtil.processHashVariable(getPropertyString("sql"), wfAssignment, null, null);
@@ -74,6 +72,32 @@ public class JdbcLoadBinder extends FormBinder implements FormLoadBinder, FormLo
         try {
         	DataSource ds = createDataSource();
         	try (Connection con = ds.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql); ) {
+        	    // set request parameters
+                StringBuffer sb = new StringBuffer();
+                Matcher matcherField = PATTERN_REPLACE_WITH_FIELD_VALUE.matcher(sql);
+                while(matcherField.find()) {
+                    String field = matcherField.group().replaceAll("(\\$\\{)|(})", "");
+
+                    String fieldValue = formData.getRequestParameter(field);
+                    if(fieldValue != null) {
+                        matcherField.appendReplacement(sb, fieldValue);
+                    } else {
+                        LogUtil.warn(getClassName(), "Parameter Field [" + field + "] cannot be retrieved");
+                        for(Map.Entry<String, String[]> entry : formData.getRequestParams().entrySet()) {
+                            if (entry != null) {
+                                LogUtil.info(getClassName(), "Parameter key [" + entry.getKey() + "]");
+                                for(String value : entry.getValue()) {
+                                    LogUtil.info(getClassName(), "Parameter value [" + value + "]");
+                                }
+                            }
+                        }
+                    }
+                }
+                matcherField.appendTail(sb);
+
+                // replace current sql
+                sql = sb.toString();
+
                 //set query parameters
                 if (sql.contains("?") && primaryKey != null && !primaryKey.isEmpty()) {
                     pstmt.setObject(1, primaryKey);
