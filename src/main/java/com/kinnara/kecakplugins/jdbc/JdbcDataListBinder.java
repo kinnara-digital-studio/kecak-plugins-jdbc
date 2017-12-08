@@ -98,10 +98,10 @@ public class JdbcDataListBinder extends DataListBinderDefault {
 
     public int getDataTotalRowCount(DataList dataList, @SuppressWarnings("rawtypes") Map properties, DataListFilterQueryObject[] filterQueryObjects) {
         try {
-            DataSource ds = this.createDataSource();
-            DataListFilterQueryObject filter = super.processFilterQueryObjects(filterQueryObjects);
-            String sqlCount = this.getQueryCount(dataList, properties, filter);
-            LogUtil.debug(this.getClassName(), "###sqlCount :"+sqlCount);
+            DataSource ds = createDataSource();
+            DataListFilterQueryObject filter = processFilterQueryObjects(filterQueryObjects);
+            String sqlCount = getQueryCount(dataList, properties, filter);
+            LogUtil.info(this.getClassName(), "###sqlCount :"+sqlCount);
             int count = this.executeQueryCount(dataList, ds, sqlCount, filter.getValues());
             return count;
         } catch (Exception ex) {
@@ -179,10 +179,14 @@ public class JdbcDataListBinder extends DataListBinderDefault {
     }
 
     protected String getQueryCount(DataList dataList, @SuppressWarnings("rawtypes") Map properties, DataListFilterQueryObject filterQueryObject) {
-    	String sql = properties.get("sqlCount").toString();
-    	sql = "SELECT " + getPropertyString("counterColumn") + " FROM (" + sql + ") " + ALIAS;
-        sql = this.insertQueryCriteria(sql, properties, filterQueryObject);
-        return sql;
+    	Object sqlCount = properties.get("sqlCount");
+        String sqlCountStr = "SELECT * FROM ("
+                + sqlCount != null && !sqlCount.toString().isEmpty()
+                    ? sqlCount.toString()
+                    : getQuerySelect(dataList, properties, filterQueryObject, null, null, null, null)
+                + ") "
+                + ALIAS;
+        return insertQueryCriteria(sqlCountStr, properties, filterQueryObject);
     }
 
     protected String insertQueryCriteria(String sql, @SuppressWarnings("rawtypes") Map properties, DataListFilterQueryObject filterQueryObject) {
@@ -272,10 +276,10 @@ public class JdbcDataListBinder extends DataListBinderDefault {
         int count = -1;
         
         if (sql != null && sql.trim().length() > 0) {
-            try( Connection con = ds.getConnection(); 
+            try( Connection con = ds.getConnection();
             		PreparedStatement pstmt = con.prepareStatement(sql); ) {
                 
-                
+
                 if (values != null && values.length > 0) {
                     for (int i = 0; i < values.length; ++i) {
                         pstmt.setObject(i + 1, values[i]);

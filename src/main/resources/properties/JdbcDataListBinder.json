@@ -66,14 +66,12 @@
         value : 'SELECT COUNT(*) AS counter FROM dir_user',
         description: 'put "AS COUNTER" after "SELECT COUNT"',
         rows : '7',
-        cols : '65',
-        required : 'true'
+        cols : '65'
     },{
     	name : 'counterColumn',
     	label : '@@datalist.jdbcDatalistBinder.query.counterColumn@@',
     	value : 'counter',
-    	type : 'textfield',
-    	required : 'true'
+    	type : 'textfield'
     },{
         name : 'primaryKey',
         label : '@@datalist.jdbcDataListBinder.query.primaryKey@@',
