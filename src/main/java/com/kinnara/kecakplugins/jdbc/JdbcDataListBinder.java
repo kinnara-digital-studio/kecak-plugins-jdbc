@@ -183,16 +183,26 @@ public class JdbcDataListBinder extends DataListBinderDefault {
         
         if(sqlCount != null && !sqlCount.toString().isEmpty()) {
             String sql = properties.get("sqlCount").toString();
+//            if (filterQueryObject != null) {
+//                sql = this.insertQueryCriteria(sql, properties, filterQueryObject);
+//            }
             sql = "SELECT " + getPropertyString("counterColumn") + " FROM (" + sql + ") " + ALIAS;
-            sql = this.insertQueryCriteria(sql, properties, filterQueryObject);
             return sql;
         } else {
             String sql = properties.get("sql").toString();
-            sql = "SELECT COUNT(*) FROM (" + sql + ") " + ALIAS;
+            sql = "SELECT * FROM (" + sql + ") " + ALIAS;
             if (filterQueryObject != null) {
                 sql = this.insertQueryCriteria(sql, properties, filterQueryObject);
             }
-            return insertQueryCriteria(sql, properties, filterQueryObject);
+            sql = "SELECT (*) FROM (" + sql + ") " + ALIAS + "_counter";
+            return sql;
+
+//            String sql = properties.get("sql").toString();
+//            sql = "SELECT COUNT(*) FROM (" + sql + ") " + ALIAS;
+//            if (filterQueryObject != null) {
+//                sql = this.insertQueryCriteria(sql, properties, filterQueryObject);
+//            }
+//            return sql;
 //            String sqlCountStr = ("SELECT COUNT(*) FROM ("
 //                        + getQuerySelect(dataList, properties, filterQueryObject, null, null, null, null)
 //                        + ") ");
