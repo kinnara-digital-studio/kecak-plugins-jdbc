@@ -32,7 +32,7 @@ import oracle.sql.TIMESTAMP;
  */
 public class JdbcDataListBinder extends DataListBinderDefault {
 
-	public static int MAXROWS = 512;
+    public static int MAXROWS = 512;
     public static String ALIAS = "temp";
     public static String SPACE = " ";
 
@@ -180,13 +180,24 @@ public class JdbcDataListBinder extends DataListBinderDefault {
 
     protected String getQueryCount(DataList dataList, @SuppressWarnings("rawtypes") Map properties, DataListFilterQueryObject filterQueryObject) {
     	Object sqlCount = properties.get("sqlCount");
-        String sqlCountStr = "SELECT * FROM ("
-                + sqlCount != null && !sqlCount.toString().isEmpty()
-                    ? sqlCount.toString()
-                    : getQuerySelect(dataList, properties, filterQueryObject, null, null, null, null)
-                + ") "
-                + ALIAS;
-        return insertQueryCriteria(sqlCountStr, properties, filterQueryObject);
+        
+        if(sqlCount != null && !sqlCount.toString().isEmpty()) {
+            String sql = properties.get("sqlCount").toString();
+            sql = "SELECT " + getPropertyString("counterColumn") + " FROM (" + sql + ") " + ALIAS;
+            sql = this.insertQueryCriteria(sql, properties, filterQueryObject);
+            return sql;
+        } else {
+            String sql = properties.get("sql").toString();
+            sql = "SELECT COUNT(*) FROM (" + sql + ") " + ALIAS;
+            if (filterQueryObject != null) {
+                sql = this.insertQueryCriteria(sql, properties, filterQueryObject);
+            }
+            return insertQueryCriteria(sql, properties, filterQueryObject);
+//            String sqlCountStr = ("SELECT COUNT(*) FROM ("
+//                        + getQuerySelect(dataList, properties, filterQueryObject, null, null, null, null)
+//                        + ") ");
+//            return insertQueryCriteria(sqlCountStr, properties, filterQueryObject);
+        }
     }
 
     protected String insertQueryCriteria(String sql, @SuppressWarnings("rawtypes") Map properties, DataListFilterQueryObject filterQueryObject) {
@@ -274,7 +285,7 @@ public class JdbcDataListBinder extends DataListBinderDefault {
 
     protected int executeQueryCount(DataList dataList, DataSource ds, String sql, String[] values) {
         int count = -1;
-        
+        //LogUtil.info(getClassName(), "SQL = " + sql);
         if (sql != null && sql.trim().length() > 0) {
             try( Connection con = ds.getConnection();
             		PreparedStatement pstmt = con.prepareStatement(sql); ) {
