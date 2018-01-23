@@ -194,7 +194,7 @@ public class JdbcDataListBinder extends DataListBinderDefault {
             if (filterQueryObject != null) {
                 sql = this.insertQueryCriteria(sql, properties, filterQueryObject);
             }
-            sql = "SELECT (*) FROM (" + sql + ") " + ALIAS + "_counter";
+            sql = "SELECT COUNT(*) FROM (" + sql + ") " + ALIAS + "_counter";
             return sql;
 
 //            String sql = properties.get("sql").toString();
