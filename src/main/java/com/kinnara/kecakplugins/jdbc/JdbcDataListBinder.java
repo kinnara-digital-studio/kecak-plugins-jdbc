@@ -101,8 +101,7 @@ public class JdbcDataListBinder extends DataListBinderDefault {
             DataSource ds = createDataSource();
             DataListFilterQueryObject filter = processFilterQueryObjects(filterQueryObjects);
             String sqlCount = getQueryCount(dataList, properties, filter);
-            LogUtil.info(this.getClassName(), "###sqlCount :"+sqlCount);
-            int count = this.executeQueryCount(dataList, ds, sqlCount, filter.getValues());
+            int count = executeQueryCount(dataList, ds, sqlCount, filter.getValues());
             return count;
         } catch (Exception ex) {
             LogUtil.error(getClassName(), ex, "");
@@ -295,7 +294,6 @@ public class JdbcDataListBinder extends DataListBinderDefault {
 
     protected int executeQueryCount(DataList dataList, DataSource ds, String sql, String[] values) {
         int count = -1;
-        //LogUtil.info(getClassName(), "SQL = " + sql);
         if (sql != null && sql.trim().length() > 0) {
             try( Connection con = ds.getConnection();
             		PreparedStatement pstmt = con.prepareStatement(sql); ) {
