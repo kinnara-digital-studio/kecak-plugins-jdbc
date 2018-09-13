@@ -129,6 +129,12 @@
             <artifactId>ojdbc</artifactId>
             <version>14</version>
         </dependency>
+		<dependency>
+		    <groupId>com.microsoft.sqlserver</groupId>
+		    <artifactId>sqljdbc6</artifactId>
+		    <version>4.2</version>
+		</dependency>
+        
         <!-- End change plugin specific dependencies here -->
     </dependencies>
     <distributionManagement>
