@@ -73,7 +73,7 @@ public class JdbcOptionsBinder extends FormBinder implements FormLoadOptionsBind
         }
         
         //Check the sql. If require dependency value and dependency value is not exist, return empty result.
-        String sql = getPropertyString("sql");
+        String sql = AppUtil.processHashVariable(getPropertyString("sql"), null, null, null);
         if ((dependencyValues == null || dependencyValues.length == 0) && sql.contains("?")) {
             return rows;
         }
