@@ -1,0 +1,76 @@
+[
+  {
+    "title": "@@datalist.jdbcDataListAction.title@@",
+    "properties": [
+      {
+        "name" : "label",
+        "label" : "@@datalist.jdbcDataListAction.label@@",
+        "type" : "textfield"
+      },
+      {
+        "name" : "jdbcDatasource",
+        "label" : "@@datalist.jdbcDataListAction.datasource@@",
+        "description" : "@@datalist.jdbcDataListAction.datasource.desc@@",
+        "type" : "selectbox",
+        "options" : [
+          {
+            "value" : "custom",
+            "label" : "@@datalist.jdbcDataListAction.customDatasource@@"
+          },
+          {
+            "value" : "default",
+            "label" : "@@datalist.jdbcDataListAction.defaultDatasource@@"
+          }
+        ],
+        "value" : "default"
+      },
+      {
+        "name" : "jdbcDriver",
+        "label" : "@@datalist.jdbcDataListAction.driver@@",
+        "description" : "@@datalist.jdbcDataListAction.driver.desc@@",
+        "type" : "textfield",
+        "value" : "com.mysql.jdbc.Driver",
+        "required" : "false",
+        "control_field": "jdbcDatasource",
+        "control_value": "custom",
+        "control_use_regex": "false"
+      },{
+        "name" : "jdbcUrl",
+        "label" : "@@datalist.jdbcDataListAction.url@@",
+        "type" : "textfield",
+        "value" : "jdbc:mysql://localhost/jwdb?characterEncoding=UTF8",
+        "required" : "false",
+        "control_field": "jdbcDatasource",
+        "control_value": "custom",
+        "control_use_regex": "false"
+      },{
+        "name" : "jdbcUser",
+        "label" : "@@datalist.jdbcDataListAction.username@@",
+        "type" : "textfield",
+        "value" : "root",
+        "control_field": "jdbcDatasource",
+        "control_value": "custom",
+        "control_use_regex": "false"
+      },{
+        "name" : "jdbcPassword",
+        "label" : "@@datalist.jdbcDataListAction.password@@",
+        "type" : "password",
+        "value" : "",
+        "control_field": "jdbcDatasource",
+        "control_value": "custom",
+        "control_use_regex": "false"
+      },{
+        "name" : "sql",
+        "label" : "@@datalist.jdbcDataListAction.query@@",
+        "description" : "@@datalist.jdbcDataListAction.query.desc@@",
+        "type" : "textarea",
+        "value" : "delete from table where id = {id}",
+        "type" : "codeeditor",
+        "mode": "sql",
+        "rows" : "7",
+        "cols" : "65",
+        "required" : "true"
+      }
+    ]
+  }
+]
