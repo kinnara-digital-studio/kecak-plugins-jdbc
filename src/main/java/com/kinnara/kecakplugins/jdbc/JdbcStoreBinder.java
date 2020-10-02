@@ -36,7 +36,7 @@ public class JdbcStoreBinder extends FormBinder implements FormStoreBinder, Form
     private final static String MESSAGE_PATH = "messages/JdbcStoreBinder";
     
     public String getName() {
-        return "JDBC Store Binder";
+        return getLabel() + getVersion();
     }
 
     public String getVersion() {
@@ -48,7 +48,7 @@ public class JdbcStoreBinder extends FormBinder implements FormStoreBinder, Form
     }
 
     public String getLabel() {
-        return getName();
+        return "JDBC Store Binder";
     }
     
     public String getDescription() {

@@ -29,7 +29,7 @@ public class JdbcLoadBinder extends FormBinder implements FormLoadBinder, FormLo
     private final static String MESSAGE_PATH = "messages/JdbcLoadBinder";
     
     public String getName() {
-        return "JDBC Load Binder";
+        return getLabel() + getVersion();
     }
 
     public String getVersion() {
@@ -41,7 +41,7 @@ public class JdbcLoadBinder extends FormBinder implements FormLoadBinder, FormLo
     }
 
     public String getLabel() {
-        return getName();
+        return "JDBC Load Binder";
     }
     
     public String getDescription() {

@@ -99,7 +99,7 @@ public class JdbcDataListAction extends DataListActionDefault {
 
     @Override
     public String getName() {
-        return "JDBC DataList Action";
+        return getLabel() + getVersion();
     }
 
     @Override
@@ -114,7 +114,7 @@ public class JdbcDataListAction extends DataListActionDefault {
 
     @Override
     public String getLabel() {
-        return getName();
+        return "JDBC DataList Action";
     }
 
     @Override

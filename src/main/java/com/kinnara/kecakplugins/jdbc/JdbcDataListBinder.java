@@ -39,7 +39,7 @@ public class JdbcDataListBinder extends DataListBinderDefault {
     private DataListColumn[] columns;
 
     public String getName() {
-        return "JDBC Datalist Binder";
+        return getLabel() + getVersion();
     }
 
     public String getVersion() {
@@ -51,7 +51,7 @@ public class JdbcDataListBinder extends DataListBinderDefault {
     }
 
     public String getLabel() {
-        return getName();
+        return "JDBC Datalist Binder";
     }
 
     public String getPropertyOptions() {

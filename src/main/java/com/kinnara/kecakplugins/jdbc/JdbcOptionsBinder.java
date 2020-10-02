@@ -27,35 +27,43 @@ import org.joget.commons.util.LogUtil;
  */
 public class JdbcOptionsBinder extends FormBinder implements FormLoadOptionsBinder, FormAjaxOptionsBinder { 
     private final static String MESSAGE_PATH = "messages/JdbcOptionsBinder";
-    
+
+    @Override
     public String getName() {
-        return "JDBC Option Binder";
+        return getLabel() + getVersion();
     }
 
+    @Override
     public String getVersion() {
     	return getClass().getPackage().getImplementationVersion();
     }
-    
+
+    @Override
     public String getClassName() {
         return getClass().getName();
     }
 
+    @Override
     public String getLabel() {
-        return getName();
+        return "JDBC Option Binder";
     }
-    
+
+    @Override
     public String getDescription() {
     	return "Kecak Plugins; Artifact ID : " + getClass().getPackage().getImplementationTitle();
     }
 
+    @Override
     public String getPropertyOptions() {
         return AppUtil.readPluginResource(getClassName(), "/properties/JdbcOptionsBinder.json", new Object[] { JdbcTestConnectionApi.class.getName() }, true, "/messages/JdbcOptionsBinder");
     }
 
+    @Override
     public FormRowSet load(Element element, String primaryKey, FormData formData) {
         return loadAjaxOptions(null); // reuse loadAjaxOptions method
     }
 
+    @Override
     public boolean useAjax() {
         return "true".equalsIgnoreCase(getPropertyString("useAjax")); // let user to decide whether or not to use ajax for dependency field
     }
