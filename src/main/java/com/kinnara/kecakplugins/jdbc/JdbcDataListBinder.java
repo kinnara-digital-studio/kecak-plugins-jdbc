@@ -5,10 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import javax.sql.DataSource;
 
@@ -24,6 +21,7 @@ import org.joget.commons.util.DynamicDataSourceManager;
 import org.joget.commons.util.LogUtil;
 
 import oracle.sql.TIMESTAMP;
+import org.springframework.context.ApplicationContext;
 
 /**
  * 
@@ -114,6 +112,7 @@ public class JdbcDataListBinder extends DataListBinderDefault {
      * @return @throws Exception
      */
     protected DataSource createDataSource() {
+        ApplicationContext applicationContext = AppUtil.getApplicationContext();
     	@SuppressWarnings("rawtypes")
 		Map binderProps = this.getProperties(); 
         DataSource ds = null;
@@ -250,6 +249,8 @@ public class JdbcDataListBinder extends DataListBinderDefault {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	protected DataListCollection executeQuery(DataList dataList, DataSource ds, String sql, String[] values, Integer start, Integer rows) throws SQLException {
+        LogUtil.info(getClassName(), "executeQuery : sql[" + sql + "] values ["+String.join(", ", Optional.ofNullable(values).orElse(new String[0]))+"]");
+
         DataListCollection results = new DataListCollection();
         try(Connection con = ds.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql);) {
             if (start == null || start < 0) {
