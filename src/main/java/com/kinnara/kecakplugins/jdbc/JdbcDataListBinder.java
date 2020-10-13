@@ -249,8 +249,6 @@ public class JdbcDataListBinder extends DataListBinderDefault {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	protected DataListCollection executeQuery(DataList dataList, DataSource ds, String sql, String[] values, Integer start, Integer rows) throws SQLException {
-        LogUtil.info(getClassName(), "executeQuery : sql[" + sql + "] values ["+String.join(", ", Optional.ofNullable(values).orElse(new String[0]))+"]");
-
         DataListCollection results = new DataListCollection();
         try(Connection con = ds.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql);) {
             if (start == null || start < 0) {
