@@ -4,11 +4,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.util.Optional;
 import java.util.Properties;
 
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSourceFactory;
+import org.joget.apps.app.service.AppService;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.model.Element;
 import org.joget.apps.form.model.FormAjaxOptionsBinder;
@@ -19,6 +21,8 @@ import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
 import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
+import org.joget.workflow.model.WorkflowAssignment;
+import org.joget.workflow.model.service.WorkflowManager;
 
 /**
  * 
@@ -60,7 +64,7 @@ public class JdbcOptionsBinder extends FormBinder implements FormLoadOptionsBind
 
     @Override
     public FormRowSet load(Element element, String primaryKey, FormData formData) {
-        return loadAjaxOptions(null); // reuse loadAjaxOptions method
+        return loadAjaxOptions(null, formData); // reuse loadAjaxOptions method
     }
 
     @Override
@@ -68,7 +72,15 @@ public class JdbcOptionsBinder extends FormBinder implements FormLoadOptionsBind
         return "true".equalsIgnoreCase(getPropertyString("useAjax")); // let user to decide whether or not to use ajax for dependency field
     }
 
-    public FormRowSet loadAjaxOptions(String[] dependencyValues) {
+    @Override
+    public FormRowSet loadAjaxOptions(String[] dependencyValues, FormData formData) {
+        WorkflowManager workflowManager = (WorkflowManager) AppUtil.getApplicationContext().getBean("workflowManager");
+
+        WorkflowAssignment workflowAssignment = Optional.ofNullable(formData)
+                .map(FormData::getActivityId)
+                .map(workflowManager::getAssignment)
+                .orElse(null);
+
         FormRowSet rows = new FormRowSet();
         rows.setMultiRow(true);
         
@@ -81,7 +93,7 @@ public class JdbcOptionsBinder extends FormBinder implements FormLoadOptionsBind
         }
         
         //Check the sql. If require dependency value and dependency value is not exist, return empty result.
-        String sql = AppUtil.processHashVariable(getPropertyString("sql"), null, null, null);
+        String sql = AppUtil.processHashVariable(getPropertyString("sql"), workflowAssignment, null, null);
         if ((dependencyValues == null || dependencyValues.length == 0) && sql.contains("?")) {
             return rows;
         }
