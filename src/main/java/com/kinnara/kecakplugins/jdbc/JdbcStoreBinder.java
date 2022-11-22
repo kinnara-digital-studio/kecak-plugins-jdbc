@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,6 +26,7 @@ import org.joget.apps.form.model.FormStoreMultiRowElementBinder;
 import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
 import org.joget.commons.util.UuidGenerator;
+import org.joget.plugin.base.PluginManager;
 
 /**
  * 
@@ -40,8 +42,10 @@ public class JdbcStoreBinder extends FormBinder implements FormStoreBinder, Form
     }
 
     public String getVersion() {
-    	return getClass().getPackage().getImplementationVersion();
-    }
+        PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
+        ResourceBundle resourceBundle = pluginManager.getPluginMessageBundle(getClassName(), "/messages/BuildNumber");
+        String buildNumber = resourceBundle.getString("build.number");
+        return buildNumber;    }
     
     public String getClassName() {
         return getClass().getName();

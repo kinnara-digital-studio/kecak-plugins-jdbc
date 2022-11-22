@@ -1,28 +1,22 @@
 package com.kinnara.kecakplugins.jdbc;
 
+import org.apache.commons.dbcp.BasicDataSourceFactory;
+import org.joget.apps.app.service.AppUtil;
+import org.joget.apps.form.model.*;
+import org.joget.apps.form.service.FormUtil;
+import org.joget.commons.util.LogUtil;
+import org.joget.plugin.base.PluginManager;
+import org.joget.workflow.model.WorkflowAssignment;
+import org.joget.workflow.model.service.WorkflowManager;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.Optional;
 import java.util.Properties;
-
-import javax.sql.DataSource;
-
-import org.apache.commons.dbcp.BasicDataSourceFactory;
-import org.joget.apps.app.service.AppService;
-import org.joget.apps.app.service.AppUtil;
-import org.joget.apps.form.model.Element;
-import org.joget.apps.form.model.FormAjaxOptionsBinder;
-import org.joget.apps.form.model.FormBinder;
-import org.joget.apps.form.model.FormData;
-import org.joget.apps.form.model.FormLoadOptionsBinder;
-import org.joget.apps.form.model.FormRow;
-import org.joget.apps.form.model.FormRowSet;
-import org.joget.apps.form.service.FormUtil;
-import org.joget.commons.util.LogUtil;
-import org.joget.workflow.model.WorkflowAssignment;
-import org.joget.workflow.model.service.WorkflowManager;
+import java.util.ResourceBundle;
 
 /**
  * 
@@ -39,7 +33,10 @@ public class JdbcOptionsBinder extends FormBinder implements FormLoadOptionsBind
 
     @Override
     public String getVersion() {
-    	return getClass().getPackage().getImplementationVersion();
+        PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
+        ResourceBundle resourceBundle = pluginManager.getPluginMessageBundle(getClassName(), "/messages/BuildNumber");
+        String buildNumber = resourceBundle.getString("build.number");
+        return buildNumber;
     }
 
     @Override
@@ -64,7 +61,8 @@ public class JdbcOptionsBinder extends FormBinder implements FormLoadOptionsBind
 
     @Override
     public FormRowSet load(Element element, String primaryKey, FormData formData) {
-        return loadAjaxOptions(null, formData); // reuse loadAjaxOptions method
+        setFormData(formData);
+        return loadAjaxOptions(null); // reuse loadAjaxOptions method
     }
 
     @Override
@@ -73,10 +71,10 @@ public class JdbcOptionsBinder extends FormBinder implements FormLoadOptionsBind
     }
 
     @Override
-    public FormRowSet loadAjaxOptions(String[] dependencyValues, FormData formData) {
+    public FormRowSet loadAjaxOptions(String[] dependencyValues) {
         WorkflowManager workflowManager = (WorkflowManager) AppUtil.getApplicationContext().getBean("workflowManager");
 
-        WorkflowAssignment workflowAssignment = Optional.ofNullable(formData)
+        WorkflowAssignment workflowAssignment = Optional.ofNullable(getFormData())
                 .map(FormData::getActivityId)
                 .map(workflowManager::getAssignment)
                 .orElse(null);

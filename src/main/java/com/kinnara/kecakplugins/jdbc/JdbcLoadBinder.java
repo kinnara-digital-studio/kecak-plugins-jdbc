@@ -5,6 +5,7 @@ import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.model.*;
 import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
+import org.joget.plugin.base.PluginManager;
 import org.joget.workflow.model.WorkflowAssignment;
 import org.joget.workflow.model.service.WorkflowManager;
 import org.springframework.context.ApplicationContext;
@@ -16,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,7 +35,10 @@ public class JdbcLoadBinder extends FormBinder implements FormLoadBinder, FormLo
     }
 
     public String getVersion() {
-        return getClass().getPackage().getImplementationVersion();
+        PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
+        ResourceBundle resourceBundle = pluginManager.getPluginMessageBundle(getClassName(), "/messages/BuildNumber");
+        String buildNumber = resourceBundle.getString("build.number");
+        return buildNumber;
     }
     
     public String getClassName() {

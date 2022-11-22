@@ -21,6 +21,7 @@ import org.joget.commons.util.DynamicDataSourceManager;
 import org.joget.commons.util.LogUtil;
 
 import oracle.sql.TIMESTAMP;
+import org.joget.plugin.base.PluginManager;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -41,8 +42,10 @@ public class JdbcDataListBinder extends DataListBinderDefault {
     }
 
     public String getVersion() {
-        return getClass().getPackage().getImplementationVersion();
-    }
+        PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
+        ResourceBundle resourceBundle = pluginManager.getPluginMessageBundle(getClassName(), "/messages/BuildNumber");
+        String buildNumber = resourceBundle.getString("build.number");
+        return buildNumber;    }
 
     public String getDescription() {
     	return "Kecak Plugins; Artifact ID : " + getClass().getPackage().getImplementationTitle();

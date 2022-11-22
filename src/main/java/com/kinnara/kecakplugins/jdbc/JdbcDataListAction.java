@@ -6,6 +6,7 @@ import org.joget.apps.datalist.model.DataList;
 import org.joget.apps.datalist.model.DataListActionDefault;
 import org.joget.apps.datalist.model.DataListActionResult;
 import org.joget.commons.util.LogUtil;
+import org.joget.plugin.base.PluginManager;
 import org.joget.workflow.util.WorkflowUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -104,8 +106,10 @@ public class JdbcDataListAction extends DataListActionDefault {
 
     @Override
     public String getVersion() {
-        return getClass().getPackage().getImplementationVersion();
-    }
+        PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
+        ResourceBundle resourceBundle = pluginManager.getPluginMessageBundle(getClassName(), "/messages/BuildNumber");
+        String buildNumber = resourceBundle.getString("build.number");
+        return buildNumber;    }
 
     @Override
     public String getDescription() {
