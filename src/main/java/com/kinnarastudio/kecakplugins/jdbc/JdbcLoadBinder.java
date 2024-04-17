@@ -1,4 +1,4 @@
-package com.kinnara.kecakplugins.jdbc;
+package com.kinnarastudio.kecakplugins.jdbc;
 
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.joget.apps.app.service.AppUtil;
@@ -15,7 +15,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
@@ -31,7 +30,7 @@ public class JdbcLoadBinder extends FormBinder implements FormLoadBinder, FormLo
     private final static String MESSAGE_PATH = "messages/JdbcLoadBinder";
     
     public String getName() {
-        return getLabel() + getVersion();
+        return getLabel();
     }
 
     public String getVersion() {

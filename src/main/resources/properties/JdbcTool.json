@@ -1,0 +1,140 @@
+[
+    {
+        "title": "@@jdbcTool.config@@",
+        "properties":
+        [
+            {
+                "name": "jdbcDatasource",
+                "label": "@@jdbcTool.datasource@@",
+                "description": "@@jdbcTool.datasource.desc@@",
+                "type": "selectbox",
+                "options":
+                [
+                    {
+                        "value": "custom",
+                        "label": "@@jdbcTool.customDatasource@@"
+                    },
+                    {
+                        "value": "default",
+                        "label": "@@jdbcTool.defaultDatasource@@"
+                    }
+                ],
+                "value": "default"
+            },
+            {
+                "name": "jdbcDriver",
+                "label": "@@jdbcTool.driver@@",
+                "description": "@@jdbcTool.driver.desc@@",
+                "type": "textfield",
+                "value": "com.mysql.cj.jdbc.Driver",
+                "required": "false",
+                "control_field": "jdbcDatasource",
+                "control_value": "custom",
+                "control_use_regex": "false"
+            },
+            {
+                "name": "jdbcUrl",
+                "label": "@@jdbcTool.url@@",
+                "type": "textfield",
+                "value": "jdbc:mysql://localhost/jwdb?characterEncoding=UTF8",
+                "required": "false",
+                "control_field": "jdbcDatasource",
+                "control_value": "custom",
+                "control_use_regex": "false"
+            },
+            {
+                "name": "jdbcUser",
+                "label": "@@jdbcTool.username@@",
+                "type": "textfield",
+                "value": "root",
+                "control_field": "jdbcDatasource",
+                "control_value": "custom",
+                "control_use_regex": "false"
+            },
+            {
+                "name": "jdbcPassword",
+                "label": "@@jdbcTool.password@@",
+                "type": "password",
+                "value": "",
+                "control_field": "jdbcDatasource",
+                "control_value": "custom",
+                "control_use_regex": "false"
+            },
+            {
+                "name": "type",
+                "label": "@@jdbcTool.query.type@@",
+                "value": "select",
+                "type": "radio",
+                "options": [
+                    {
+                        "value": "select",
+                        "label": "jdbcTool.query.type.select"
+                    },
+                    {
+                        "value": "insert",
+                        "label": "jdbcTool.query.type.insert"
+                    },
+                    {
+                        "value": "update",
+                        "label": "jdbcTool.query.type.update"
+                    },
+                    {
+                        "value": "delete",
+                        "label": "jdbcTool.query.type.delete"
+                    }
+                ],
+                "required": "true"
+            },
+            {
+                "name": "sql",
+                "label": "@@jdbcTool.query.select@@",
+                "value": "SELECT * FROM dir_user",
+                "type": "codeeditor",
+                "mode": "sql",
+                "rows": "7",
+                "cols": "65",
+                "required": "true"
+            }
+        ],
+        "buttons":
+        [
+            {
+                "name": "testConnection",
+                "label": "@@jdbcTool.testConnection@@",
+                "ajax_url": "[CONTEXT_PATH]/web/json/plugin/%s/service?action=testConnection",
+                "fields":
+                [
+                    "jdbcDriver",
+                    "jdbcUrl",
+                    "jdbcUser",
+                    "jdbcPassword"
+                ],
+                "control_field": "jdbcDatasource",
+                "control_value": "custom",
+                "control_use_regex": "false"
+            }
+        ]
+    },
+    {
+        "title": "@@jdbcTool.config@@",
+        "properties":[
+            {
+                "name": "resultSet",
+                "label": "Result",
+                "type": "grid",
+                "columns": [
+                    {
+                        "key": "column",
+                        "label": "Column",
+                        "required": "true"
+                    },
+                    {
+                        "key": "wfVariable",
+                        "label": "Workflow Variable",
+                        "required": "true"
+                    }
+                ]
+            }
+        ]
+    }
+]

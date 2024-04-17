@@ -1,4 +1,4 @@
-package com.kinnara.kecakplugins.jdbc;
+package com.kinnarastudio.kecakplugins.jdbc;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,6 +15,7 @@ public class Activator implements BundleActivator {
         registrationList = new ArrayList<ServiceRegistration>();
 
         //Register plugin here
+        registrationList.add(context.registerService(JdbcTool.class.getName(), new JdbcTool(), null));
         registrationList.add(context.registerService(JdbcLoadBinder.class.getName(), new JdbcLoadBinder(), null));
         registrationList.add(context.registerService(JdbcStoreBinder.class.getName(), new JdbcStoreBinder(), null));
         registrationList.add(context.registerService(JdbcOptionsBinder.class.getName(), new JdbcOptionsBinder(), null));

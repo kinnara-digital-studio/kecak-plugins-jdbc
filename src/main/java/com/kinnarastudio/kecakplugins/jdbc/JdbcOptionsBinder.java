@@ -1,4 +1,4 @@
-package com.kinnara.kecakplugins.jdbc;
+package com.kinnarastudio.kecakplugins.jdbc;
 
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.joget.apps.app.service.AppUtil;
@@ -28,7 +28,7 @@ public class JdbcOptionsBinder extends FormBinder implements FormLoadOptionsBind
 
     @Override
     public String getName() {
-        return getLabel() + getVersion();
+        return getLabel();
     }
 
     @Override

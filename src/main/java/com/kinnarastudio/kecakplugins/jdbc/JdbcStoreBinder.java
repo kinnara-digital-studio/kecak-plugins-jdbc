@@ -1,4 +1,4 @@
-package com.kinnara.kecakplugins.jdbc;
+package com.kinnarastudio.kecakplugins.jdbc;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,14 +38,15 @@ public class JdbcStoreBinder extends FormBinder implements FormStoreBinder, Form
     private final static String MESSAGE_PATH = "messages/JdbcStoreBinder";
     
     public String getName() {
-        return getLabel() + getVersion();
+        return getLabel();
     }
 
     public String getVersion() {
         PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
         ResourceBundle resourceBundle = pluginManager.getPluginMessageBundle(getClassName(), "/messages/BuildNumber");
         String buildNumber = resourceBundle.getString("build.number");
-        return buildNumber;    }
+        return buildNumber;
+    }
     
     public String getClassName() {
         return getClass().getName();

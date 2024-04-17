@@ -1,4 +1,4 @@
-package com.kinnara.kecakplugins.jdbc;
+package com.kinnarastudio.kecakplugins.jdbc;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,9 +25,7 @@ import org.joget.plugin.base.PluginManager;
 import org.springframework.context.ApplicationContext;
 
 /**
- * 
  * @author aristo
- *
  */
 public class JdbcDataListBinder extends DataListBinderDefault {
 
@@ -38,17 +36,18 @@ public class JdbcDataListBinder extends DataListBinderDefault {
     private DataListColumn[] columns;
 
     public String getName() {
-        return getLabel() + getVersion();
+        return getLabel();
     }
 
     public String getVersion() {
         PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
         ResourceBundle resourceBundle = pluginManager.getPluginMessageBundle(getClassName(), "/messages/BuildNumber");
         String buildNumber = resourceBundle.getString("build.number");
-        return buildNumber;    }
+        return buildNumber;
+    }
 
     public String getDescription() {
-    	return "Kecak Plugins; Artifact ID : " + getClass().getPackage().getImplementationTitle();
+        return "Kecak Plugins; Artifact ID : " + getClass().getPackage().getImplementationTitle();
     }
 
     public String getLabel() {
@@ -56,27 +55,27 @@ public class JdbcDataListBinder extends DataListBinderDefault {
     }
 
     public String getPropertyOptions() {
-    	return AppUtil.readPluginResource(getClassName(), "/properties/JdbcDataListBinder.json", new Object[] { JdbcTestConnectionApi.class.getName() }, true, "/messages/JdbcDataListBinder");
+        return AppUtil.readPluginResource(getClassName(), "/properties/JdbcDataListBinder.json", new Object[]{JdbcTestConnectionApi.class.getName()}, true, "/messages/JdbcDataListBinder");
     }
 
     public DataListColumn[] getColumns() {
-        if (this.columns == null) {
+        if (columns == null) {
             try {
-                String sql = this.getQuerySelect(null, this.getProperties(), null, null, null, 0, 1);
-                DataSource ds = this.createDataSource();
-                this.columns = this.queryMetaData(ds, sql);
+                String sql = getQuerySelect(null, getProperties(), null, null, null, 0, 1);
+                DataSource ds = createDataSource();
+                columns = queryMetaData(ds, sql);
             } catch (Exception ex) {
                 LogUtil.error(getClassName(), ex, "");
                 throw new RuntimeException(ex.toString());
             }
         }
-        return this.columns;
+        return columns;
     }
 
     public String getPrimaryKeyColumnName() {
         String primaryKey = "";
         @SuppressWarnings("rawtypes")
-		Map props = this.getProperties();
+        Map props = getProperties();
         if (props != null) {
             primaryKey = props.get("primaryKey").toString();
         }
@@ -84,12 +83,12 @@ public class JdbcDataListBinder extends DataListBinderDefault {
     }
 
     @SuppressWarnings("rawtypes")
-	public DataListCollection getData(DataList dataList, Map properties, DataListFilterQueryObject[] filterQueryObjects, String sort, Boolean desc, Integer start, Integer rows) {
+    public DataListCollection getData(DataList dataList, Map properties, DataListFilterQueryObject[] filterQueryObjects, String sort, Boolean desc, Integer start, Integer rows) {
         try {
-            DataSource ds = this.createDataSource();
-            DataListFilterQueryObject filter = this.processFilterQueryObjects(filterQueryObjects);
-            String sql = this.getQuerySelect(dataList, properties, filter, sort, desc, start, rows);
-            DataListCollection results = this.executeQuery(dataList, ds, sql, filter.getValues(), start, rows);
+            DataSource ds = createDataSource();
+            DataListFilterQueryObject filter = processFilterQueryObjects(filterQueryObjects);
+            String sql = getQuerySelect(dataList, properties, filter, sort, desc, start, rows);
+            DataListCollection results = executeQuery(ds, sql, filter.getValues(), start, rows);
             return results;
         } catch (Exception ex) {
             LogUtil.error(getClassName(), ex, "");
@@ -111,17 +110,16 @@ public class JdbcDataListBinder extends DataListBinderDefault {
     }
 
     /**
-     *
      * @return @throws Exception
      */
     protected DataSource createDataSource() {
         ApplicationContext applicationContext = AppUtil.getApplicationContext();
-    	@SuppressWarnings("rawtypes")
-		Map binderProps = this.getProperties(); 
+        @SuppressWarnings("rawtypes")
+        Map binderProps = getProperties();
         DataSource ds = null;
-        String datasource = (String)binderProps.get("jdbcDatasource");
+        String datasource = (String) binderProps.get("jdbcDatasource");
         if (datasource != null && "default".equals(datasource)) {
-            ds = (DataSource)AppUtil.getApplicationContext().getBean("setupDataSource");
+            ds = (DataSource) AppUtil.getApplicationContext().getBean("setupDataSource");
         } else {
             Properties dsProps = new Properties();
             dsProps.put("driverClassName", binderProps.get("jdbcDriver").toString());
@@ -129,10 +127,10 @@ public class JdbcDataListBinder extends DataListBinderDefault {
             dsProps.put("username", binderProps.get("jdbcUser").toString());
             dsProps.put("password", binderProps.get("jdbcPassword").toString());
             try {
-				ds = BasicDataSourceFactory.createDataSource((Properties)dsProps);
-			} catch (Exception e) {
-				 LogUtil.error(getClassName(), e, e.getMessage());
-			}
+                ds = BasicDataSourceFactory.createDataSource((Properties) dsProps);
+            } catch (Exception e) {
+                LogUtil.error(getClassName(), e, e.getMessage());
+            }
         }
         return ds;
     }
@@ -140,10 +138,10 @@ public class JdbcDataListBinder extends DataListBinderDefault {
     protected DataListColumn[] queryMetaData(DataSource ds, String sql) throws SQLException {
         ArrayList<DataListColumn> columns;
         columns = new ArrayList<DataListColumn>();
-        try(Connection con = ds.getConnection();
-        		PreparedStatement pstmt = con.prepareStatement(sql);) {
-            String driver = this.getPropertyString("jdbcDriver");
-            String datasource = this.getPropertyString("jdbcDatasource");
+        try (Connection con = ds.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql);) {
+            String driver = getPropertyString("jdbcDriver");
+            String datasource = getPropertyString("jdbcDatasource");
             if (datasource != null && "default".equals(datasource)) {
                 Properties properties = DynamicDataSourceManager.getProperties();
                 driver = properties.getProperty("workflowDriver");
@@ -164,7 +162,7 @@ public class JdbcDataListBinder extends DataListBinderDefault {
                 columns.add(column);
             }
         }
-        
+
         DataListColumn[] columnArray = columns.toArray((DataListColumn[]) new DataListColumn[0]);
         return columnArray;
     }
@@ -173,19 +171,19 @@ public class JdbcDataListBinder extends DataListBinderDefault {
         String sql = properties.get("sql").toString();
         sql = "SELECT * FROM (" + sql + ") " + ALIAS;
         if (filterQueryObject != null) {
-            sql = this.insertQueryCriteria(sql, properties, filterQueryObject);
+            sql = insertQueryCriteria(sql, properties, filterQueryObject);
         }
-        sql = this.insertQueryOrdering(sql, sort, desc);
+        sql = insertQueryOrdering(sql, sort, desc);
         return sql;
     }
 
     protected String getQueryCount(DataList dataList, @SuppressWarnings("rawtypes") Map properties, DataListFilterQueryObject filterQueryObject) {
-    	Object sqlCount = properties.get("sqlCount");
-        
-        if(sqlCount != null && !sqlCount.toString().isEmpty()) {
+        Object sqlCount = properties.get("sqlCount");
+
+        if (sqlCount != null && !sqlCount.toString().isEmpty()) {
             String sql = properties.get("sqlCount").toString();
 //            if (filterQueryObject != null) {
-//                sql = this.insertQueryCriteria(sql, properties, filterQueryObject);
+//                sql = insertQueryCriteria(sql, properties, filterQueryObject);
 //            }
             sql = "SELECT " + getPropertyString("counterColumn") + " FROM (" + sql + ") " + ALIAS;
             return sql;
@@ -193,7 +191,7 @@ public class JdbcDataListBinder extends DataListBinderDefault {
             String sql = properties.get("sql").toString();
             sql = "SELECT * FROM (" + sql + ") " + ALIAS;
             if (filterQueryObject != null) {
-                sql = this.insertQueryCriteria(sql, properties, filterQueryObject);
+                sql = insertQueryCriteria(sql, properties, filterQueryObject);
             }
             sql = "SELECT COUNT(*) FROM (" + sql + ") " + ALIAS + "_counter";
             return sql;
@@ -201,7 +199,7 @@ public class JdbcDataListBinder extends DataListBinderDefault {
 //            String sql = properties.get("sql").toString();
 //            sql = "SELECT COUNT(*) FROM (" + sql + ") " + ALIAS;
 //            if (filterQueryObject != null) {
-//                sql = this.insertQueryCriteria(sql, properties, filterQueryObject);
+//                sql = insertQueryCriteria(sql, properties, filterQueryObject);
 //            }
 //            return sql;
 //            String sqlCountStr = ("SELECT COUNT(*) FROM ("
@@ -230,7 +228,7 @@ public class JdbcDataListBinder extends DataListBinderDefault {
                 if (extra.trim().length() > 0) {
                     extra = extra + "AND ";
                 }
-                extra = extra + this.getName(keyName) + " = '" + keyValue + "' ";
+                extra = extra + getName(keyName) + " = '" + keyValue + "' ";
             }
             if (extra != null && !extra.isEmpty()) {
                 sql = sql + " WHERE " + extra;
@@ -241,7 +239,7 @@ public class JdbcDataListBinder extends DataListBinderDefault {
 
     protected String insertQueryOrdering(String sql, String sort, Boolean desc) {
         if (sql != null && sql.trim().length() > 0 && sort != null && sort.trim().length() > 0) {
-            String clause = " " + this.getName(sort);
+            String clause = " " + getName(sort);
             if (desc != null && desc.booleanValue()) {
                 clause = clause + " DESC";
             }
@@ -250,10 +248,11 @@ public class JdbcDataListBinder extends DataListBinderDefault {
         return sql;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-	protected DataListCollection executeQuery(DataList dataList, DataSource ds, String sql, String[] values, Integer start, Integer rows) throws SQLException {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    protected DataListCollection executeQuery(DataSource ds, String sql, String[] values, Integer start, Integer rows) throws SQLException {
         DataListCollection results = new DataListCollection();
-        try(Connection con = ds.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql);) {
+        try (Connection con = ds.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
             if (start == null || start < 0) {
                 start = 0;
             }
@@ -266,29 +265,29 @@ public class JdbcDataListBinder extends DataListBinderDefault {
                     pstmt.setObject(i + 1, values[i]);
                 }
             }
-            try(ResultSet rs = pstmt.executeQuery()) {
-	            DataListColumn[] columns = this.getColumns();
-	            int count = 0;
-	            while (rs.next()) {
-	                HashMap<String, String> row = new HashMap<String, String>();
-	                if (count++ < start) {
-	                    continue;
-	                }
-	                if (columns != null) {
-	                    for (DataListColumn column : columns) {
-	                        String columnName = column.getName();
-	                        Object obj = rs.getObject(columnName);
-	                        String columnValue = obj != null ? obj.toString() : "";
-	                        if (obj instanceof TIMESTAMP) {
-	                            TIMESTAMP timestamp = (TIMESTAMP) obj;
-	                            columnValue = timestamp.stringValue();
-	                        }
-	                        row.put(columnName, columnValue);
-	                        //row.put(columnName.toLowerCase(), columnValue);
-	                    }
-	                }
-	                results.add(row);
-	            }
+            try (ResultSet rs = pstmt.executeQuery()) {
+                DataListColumn[] columns = getColumns();
+                int count = 0;
+                while (rs.next()) {
+                    HashMap<String, String> row = new HashMap<String, String>();
+                    if (count++ < start) {
+                        continue;
+                    }
+                    if (columns != null) {
+                        for (DataListColumn column : columns) {
+                            String columnName = column.getName();
+                            Object obj = rs.getObject(columnName);
+                            String columnValue = obj != null ? obj.toString() : "";
+                            if (obj instanceof TIMESTAMP) {
+                                TIMESTAMP timestamp = (TIMESTAMP) obj;
+                                columnValue = timestamp.stringValue();
+                            }
+                            row.put(columnName, columnValue);
+                            //row.put(columnName.toLowerCase(), columnValue);
+                        }
+                    }
+                    results.add(row);
+                }
             }
         }
         return results;
@@ -297,34 +296,34 @@ public class JdbcDataListBinder extends DataListBinderDefault {
     protected int executeQueryCount(DataList dataList, DataSource ds, String sql, String[] values) {
         int count = -1;
         if (sql != null && sql.trim().length() > 0) {
-            try( Connection con = ds.getConnection();
-            		PreparedStatement pstmt = con.prepareStatement(sql); ) {
-                
+            try (Connection con = ds.getConnection();
+                 PreparedStatement pstmt = con.prepareStatement(sql);) {
+
 
                 if (values != null && values.length > 0) {
                     for (int i = 0; i < values.length; ++i) {
                         pstmt.setObject(i + 1, values[i]);
                     }
                 }
-                
-                try(ResultSet rs = pstmt.executeQuery()) {
-	                if (rs.next()) {
-	                    count = rs.getInt(1);
-	                }
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        count = rs.getInt(1);
+                    }
                 }
             } catch (SQLException e) {
-				e.printStackTrace();
-			}
+                e.printStackTrace();
+            }
         }
         return count;
     }
 
     public String getClassName() {
-        return this.getClass().getName();
+        return getClass().getName();
     }
 
     public String getColumnName(String name) {
-        if ("dateCreated".equals(name = this.getName(name)) || "dateModified".equals(name)) {
+        if ("dateCreated".equals(name = getName(name)) || "dateModified".equals(name)) {
             name = "cast(" + name + " as string)";
         }
         return name;
@@ -332,7 +331,7 @@ public class JdbcDataListBinder extends DataListBinderDefault {
 
     protected String getName(String name) {
         if (name != null && !name.isEmpty()) {
-            DataListColumn[] columns = this.getColumns();
+            DataListColumn[] columns = getColumns();
             for (DataListColumn column : columns) {
                 if (!name.equalsIgnoreCase(column.getName())) {
                     continue;
