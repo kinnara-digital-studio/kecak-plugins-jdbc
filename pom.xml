@@ -8,9 +8,9 @@
     <name>kecak-plugins-jdbc</name>
     <url>http://www.kecak.com</url>
     <scm>
-        <connection>scm:git:ssh://git@gitlab.com:kinnarastudio/kecak-plugins-jdbc.git</connection>
-        <developerConnection>scm:git:ssh://git@gitlab.com:kinnarastudio/kecak-plugins-jdbc.git</developerConnection>
-        <url>ssh://git@gitlab.com:kinnarastudio/kecak-plugins-jdbc.git</url>
+        <connection>scm:git:ssh://git@github.com:kinnara-digital-studio/kecak-plugins-jdbc.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:kinnara-digital-studio/kecak-plugins-jdbc.git</developerConnection>
+        <url>ssh://git@github.com:kinnara-digital-studio/kecak-plugins-jdbc.git</url>
         <tag>HEAD</tag>
     </scm>
     <build>
@@ -19,8 +19,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.6.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
             <plugin>
