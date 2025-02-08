@@ -63,7 +63,6 @@
         "name" : "sql",
         "label" : "@@datalist.jdbcDataListAction.query@@",
         "description" : "@@datalist.jdbcDataListAction.query.desc@@",
-        "type" : "textarea",
         "value" : "delete from table where id = {id}",
         "type" : "codeeditor",
         "mode": "sql",

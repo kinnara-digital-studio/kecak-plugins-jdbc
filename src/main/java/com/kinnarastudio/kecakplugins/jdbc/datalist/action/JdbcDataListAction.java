@@ -1,5 +1,6 @@
-package com.kinnarastudio.kecakplugins.jdbc;
+package com.kinnarastudio.kecakplugins.jdbc.datalist.action;
 
+import com.kinnarastudio.kecakplugins.jdbc.JdbcTestConnectionApi;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.datalist.model.DataList;
@@ -128,7 +129,7 @@ public class JdbcDataListAction extends DataListActionDefault {
 
     @Override
     public String getPropertyOptions() {
-        return AppUtil.readPluginResource(getClassName(), "/properties/JdbcDataListAction.json", new Object[] { JdbcTestConnectionApi.class.getName() }, true, "/messages/JdbcDataListAction");
+        return AppUtil.readPluginResource(getClassName(), "/properties/datalist/action/JdbcDataListAction.json", new Object[] { JdbcTestConnectionApi.class.getName() }, true, "/messages/JdbcDataListAction");
     }
 
     @Override

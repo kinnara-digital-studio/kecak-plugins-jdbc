@@ -1,4 +1,4 @@
-package com.kinnarastudio.kecakplugins.jdbc;
+package com.kinnarastudio.kecakplugins.jdbc.datalist.binder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,6 +9,7 @@ import java.util.*;
 
 import javax.sql.DataSource;
 
+import com.kinnarastudio.kecakplugins.jdbc.JdbcTestConnectionApi;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.datalist.model.DataList;
@@ -55,7 +56,7 @@ public class JdbcDataListBinder extends DataListBinderDefault {
     }
 
     public String getPropertyOptions() {
-        return AppUtil.readPluginResource(getClassName(), "/properties/JdbcDataListBinder.json", new Object[]{JdbcTestConnectionApi.class.getName()}, true, "/messages/JdbcDataListBinder");
+        return AppUtil.readPluginResource(getClassName(), "/properties/datalist/binder/JdbcDataListBinder.json", new Object[]{JdbcTestConnectionApi.class.getName()}, true, "/messages/JdbcDataListBinder");
     }
 
     public DataListColumn[] getColumns() {

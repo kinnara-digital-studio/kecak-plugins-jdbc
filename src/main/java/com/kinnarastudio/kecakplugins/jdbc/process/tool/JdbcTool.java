@@ -1,5 +1,6 @@
-package com.kinnarastudio.kecakplugins.jdbc;
+package com.kinnarastudio.kecakplugins.jdbc.process.tool;
 
+import com.kinnarastudio.kecakplugins.jdbc.JdbcTestConnectionApi;
 import oracle.sql.TIMESTAMP;
 import org.joget.apps.app.lib.DatabaseUpdateTool;
 import org.joget.apps.app.service.AppUtil;
@@ -117,7 +118,7 @@ public class JdbcTool extends DatabaseUpdateTool {
 
     @Override
     public String getPropertyOptions() {
-        return AppUtil.readPluginResource(getClass().getName(), "/properties/JdbcTool.json", new Object[] { JdbcTestConnectionApi.class.getName() }, true, "/messages/JdbcTool");
+        return AppUtil.readPluginResource(getClass().getName(), "/properties/process/tool/JdbcTool.json", new Object[] { JdbcTestConnectionApi.class.getName() }, true, "/messages/JdbcTool");
     }
 
     protected List<Map<String, String>> executeQuerySelect(DataSource ds, String sql, String[] values, Integer start, Integer rows) throws SQLException {

@@ -1,5 +1,6 @@
-package com.kinnarastudio.kecakplugins.jdbc;
+package com.kinnarastudio.kecakplugins.jdbc.form.binder;
 
+import com.kinnarastudio.kecakplugins.jdbc.JdbcTestConnectionApi;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.model.*;
@@ -56,7 +57,7 @@ public class JdbcOptionsBinder extends FormBinder implements FormLoadOptionsBind
 
     @Override
     public String getPropertyOptions() {
-        return AppUtil.readPluginResource(getClassName(), "/properties/JdbcOptionsBinder.json", new Object[] { JdbcTestConnectionApi.class.getName() }, true, "/messages/JdbcOptionsBinder");
+        return AppUtil.readPluginResource(getClassName(), "/properties/form/binder/JdbcOptionsBinder.json", new Object[] { JdbcTestConnectionApi.class.getName() }, true, "/messages/JdbcOptionsBinder");
     }
 
     @Override

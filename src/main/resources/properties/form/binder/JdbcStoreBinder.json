@@ -1,0 +1,114 @@
+[
+  {
+    "title": "@@form.jdbcStoreBinder.config@@",
+    "properties": [
+      {
+        "name": "jdbcDatasource",
+        "label": "@@form.jdbcStoreBinder.datasource@@",
+        "type": "selectbox",
+        "options": [
+          {
+            "value": "custom",
+            "label": "@@form.jdbcStoreBinder.customDatasource@@"
+          },
+          {
+            "value": "default",
+            "label": "@@form.jdbcStoreBinder.defaultDatasource@@"
+          }
+        ],
+        "value": "default"
+      },
+      {
+        "name": "jdbcDriver",
+        "label": "@@form.jdbcStoreBinder.driver@@",
+        "description": "@@form.jdbcStoreBinder.driver.desc@@",
+        "type": "textfield",
+        "value": "com.mysql.cj.jdbc.Driver",
+        "control_field": "jdbcDatasource",
+        "control_value": "custom",
+        "control_use_regex": "false",
+        "required": "true"
+      },
+      {
+        "name": "jdbcUrl",
+        "label": "@@form.jdbcStoreBinder.url@@",
+        "type": "textfield",
+        "value": "jdbc:mysql://localhost/jwdb?characterEncoding=UTF8",
+        "control_field": "jdbcDatasource",
+        "control_value": "custom",
+        "control_use_regex": "false",
+        "required": "true"
+      },
+      {
+        "name": "jdbcUser",
+        "label": "@@form.jdbcStoreBinder.username@@",
+        "type": "textfield",
+        "control_field": "jdbcDatasource",
+        "control_value": "custom",
+        "control_use_regex": "false",
+        "value": "root",
+        "required": "true"
+      },
+      {
+        "name": "jdbcPassword",
+        "label": "@@form.jdbcStoreBinder.password@@",
+        "type": "password",
+        "control_field": "jdbcDatasource",
+        "control_value": "custom",
+        "control_use_regex": "false",
+        "value": ""
+      },
+      {
+        "name": "check_sql",
+        "label": "@@form.jdbcStoreBinder.check_sql@@",
+        "description": "@@form.jdbcStoreBinder.check_sql.desc@@",
+        "type": "codeeditor",
+        "mode": "sql",
+        "required": "true"
+      },
+      {
+        "name": "insert_sql",
+        "label": "@@form.jdbcStoreBinder.insert_sql@@",
+        "description": "@@form.jdbcStoreBinder.insert_sql.desc@@",
+        "type": "codeeditor",
+        "mode": "sql",
+        "required": "true",
+        "value" : "INSERT INTO dir_department (id, name, description) VALUES ({id}, {name}, {description})"
+      },
+      {
+        "name": "update_sql",
+        "label": "@@form.jdbcStoreBinder.update_sql@@",
+        "description": "@@form.jdbcStoreBinder.update_sql.desc@@",
+        "type": "codeeditor",
+        "mode": "sql",
+        "required": "true",
+        "value" : "UPDATE dir_department SET name = {name}, description = {description}, organizationId = {organizationId} WHERE id = {id}"
+      },
+      {
+        "name": "delete_sql",
+        "label": "@@form.jdbcStoreBinder.delete_sql@@",
+        "description": "@@form.jdbcStoreBinder.delete_sql.desc@@",
+        "type": "codeeditor",
+        "mode": "sql",
+        "required": "true",
+        "value" : "DELETE FROM dir_department WHERE id = {id}"
+      }
+    ],
+    "buttons": [
+      {
+        "name": "testConnection",
+        "label": "@@form.jdbcStoreBinder.testConnection@@",
+        "ajax_url": "[CONTEXT_PATH]/web/json/plugin/%s/service?action=testConnection",
+        "fields": [
+          "jdbcDriver",
+          "jdbcUrl",
+          "jdbcUser",
+          "jdbcPassword"
+        ],
+        "control_field": "jdbcDatasource",
+        "control_value": "custom",
+        "control_use_regex": "false"
+      }
+    ]
+  }
+]
