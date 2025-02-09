@@ -24,10 +24,7 @@ import java.util.regex.Pattern;
 /**
  * @author aristo
  */
-public class JdbcStoreBinder extends FormBinder implements FormStoreBinder, FormStoreElementBinder, FormStoreMultiRowElementBinder {
-
-    private final static String MESSAGE_PATH = "messages/JdbcStoreBinder";
-
+public class JdbcStoreBinder extends FormBinder implements FormStoreBinder, FormStoreElementBinder, FormStoreMultiRowElementBinder, FormDeleteBinder {
     public String getName() {
         return getLabel();
     }
@@ -52,7 +49,7 @@ public class JdbcStoreBinder extends FormBinder implements FormStoreBinder, Form
     }
 
     public String getPropertyOptions() {
-        return AppUtil.readPluginResource(getClassName(), "/properties/form/binder/JdbcStoreBinder.json", new Object[]{JdbcTestConnectionApi.class.getName()}, true, MESSAGE_PATH);
+        return AppUtil.readPluginResource(getClassName(), "/properties/form/binder/JdbcStoreBinder.json", new Object[]{JdbcTestConnectionApi.class.getName()}, true, "/messages/JdbcStoreBinder");
     }
 
     public FormRowSet store(Element element, FormRowSet rows, FormData formData) {
@@ -195,5 +192,33 @@ public class JdbcStoreBinder extends FormBinder implements FormStoreBinder, Form
             ds = BasicDataSourceFactory.createDataSource(dsProps);
         }
         return ds;
+    }
+
+    @Override
+    public void delete(Element element, FormRowSet rows, FormData formData, boolean b, boolean b1, boolean b2, boolean b3, boolean b4) {
+        Form parentForm = FormUtil.findRootForm(element);
+        String primaryKey = parentForm.getPrimaryKeyValue(formData);
+
+        try {
+            DataSource ds = createDataSource();
+            try (Connection con = ds.getConnection()) {
+                String query = getPropertyString("delete_sql");
+                for (FormRow r : rows) {
+                    try (PreparedStatement pstmt = con.prepareStatement(getQuery(query))) {
+                        int i = 1;
+                        for (String obj : getParams(query, r, primaryKey)) {
+                            pstmt.setObject(i, obj);
+                            i++;
+                        }
+                        pstmt.executeUpdate();
+                    }
+                }
+            }
+        } catch (SQLSyntaxErrorException ignored) {
+        } catch (Exception e) {
+            LogUtil.error(getClassName(), e, "");
+            String formId = element.getPropertyString("id");
+            formData.addFormError(formId, e.getMessage());
+        }
     }
 }

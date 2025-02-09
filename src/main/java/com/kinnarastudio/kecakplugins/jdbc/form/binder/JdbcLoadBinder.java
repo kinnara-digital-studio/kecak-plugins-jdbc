@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 public class JdbcLoadBinder extends FormBinder implements FormLoadBinder, FormLoadElementBinder, FormLoadMultiRowElementBinder {
 
     private final static String MESSAGE_PATH = "messages/JdbcLoadBinder";
-    //    private final Pattern PATTERN_FIELD_NAME = Pattern.compile("(?<=\\$\\{)[^\\\\}]+(?=})");
     private final Pattern PATTERN_REPLACE_WITH_FIELD_VALUE = Pattern.compile("\\{[^}]+}");
 
     public String getName() {
@@ -75,7 +74,13 @@ public class JdbcLoadBinder extends FormBinder implements FormLoadBinder, FormLo
             while (matcherField.find()) {
                 String field = matcherField.group().replaceAll("(\\{)|(})", "");
 
-                String fieldValue = formData.getRequestParameter(field);
+                String fieldValue;
+                if(field.equals(FormUtil.PROPERTY_ID)) {
+                    fieldValue = primaryKey;
+                } else {
+                    fieldValue = formData.getRequestParameter(field);
+                }
+
                 if (fieldValue != null) {
                     matcherField.appendReplacement(sb, "'" + fieldValue + "'");
                 } else {

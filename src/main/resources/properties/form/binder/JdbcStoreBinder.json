@@ -64,7 +64,8 @@
         "description": "@@form.jdbcStoreBinder.check_sql.desc@@",
         "type": "codeeditor",
         "mode": "sql",
-        "required": "true"
+        "required": "true",
+        "value" : "SELECT * FROM dir_department WHERE id = {id}"
       },
       {
         "name": "insert_sql",

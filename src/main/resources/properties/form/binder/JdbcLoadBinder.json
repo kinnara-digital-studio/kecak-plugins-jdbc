@@ -64,7 +64,8 @@
         "description": "@@form.jdbcLoadBinder.sql.desc@@",
         "type": "codeeditor",
         "mode": "sql",
-        "required": "true"
+        "required": "true",
+        "value": "SELECT * FROM dir_department WHERE id = {id}"
       }
     ],
     "buttons": [
