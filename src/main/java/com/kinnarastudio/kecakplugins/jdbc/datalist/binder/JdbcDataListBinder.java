@@ -1,29 +1,21 @@
 package com.kinnarastudio.kecakplugins.jdbc.datalist.binder;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.*;
-
-import javax.sql.DataSource;
-
 import com.kinnarastudio.kecakplugins.jdbc.JdbcTestConnectionApi;
+import oracle.sql.TIMESTAMP;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.joget.apps.app.service.AppUtil;
-import org.joget.apps.datalist.model.DataList;
-import org.joget.apps.datalist.model.DataListBinderDefault;
-import org.joget.apps.datalist.model.DataListCollection;
-import org.joget.apps.datalist.model.DataListColumn;
-import org.joget.apps.datalist.model.DataListFilterQueryObject;
+import org.joget.apps.datalist.model.*;
 import org.joget.apps.userview.model.Userview;
 import org.joget.commons.util.DynamicDataSourceManager;
 import org.joget.commons.util.LogUtil;
-
-import oracle.sql.TIMESTAMP;
 import org.joget.plugin.base.PluginManager;
 import org.springframework.context.ApplicationContext;
+
+import javax.sql.DataSource;
+import java.sql.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author aristo
@@ -137,19 +129,20 @@ public class JdbcDataListBinder extends DataListBinderDefault {
     }
 
     protected DataListColumn[] queryMetaData(DataSource ds, String sql) throws SQLException {
-        ArrayList<DataListColumn> columns;
-        columns = new ArrayList<DataListColumn>();
+        ArrayList<DataListColumn> columns = new ArrayList<>();
         try (Connection con = ds.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql);) {
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+
             String driver = getPropertyString("jdbcDriver");
             String datasource = getPropertyString("jdbcDatasource");
-            if (datasource != null && "default".equals(datasource)) {
+            if ("default".equals(datasource)) {
                 Properties properties = DynamicDataSourceManager.getProperties();
                 driver = properties.getProperty("workflowDriver");
             }
             if ("oracle.jdbc.driver.OracleDriver".equals(driver)) {
                 pstmt.setMaxRows(1);
-                pstmt.executeQuery();
+                try (ResultSet ignored = pstmt.executeQuery()) {
+                }
             }
             ResultSetMetaData metaData = pstmt.getMetaData();
             int columnCount = metaData.getColumnCount();
@@ -164,8 +157,7 @@ public class JdbcDataListBinder extends DataListBinderDefault {
             }
         }
 
-        DataListColumn[] columnArray = columns.toArray((DataListColumn[]) new DataListColumn[0]);
-        return columnArray;
+        return columns.toArray(new DataListColumn[0]);
     }
 
     protected String getQuerySelect(DataList dataList, @SuppressWarnings("rawtypes") Map properties, DataListFilterQueryObject filterQueryObject, String sort, Boolean desc, Integer start, Integer rows) {
@@ -254,19 +246,24 @@ public class JdbcDataListBinder extends DataListBinderDefault {
         DataListCollection results = new DataListCollection();
         try (Connection con = ds.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
+
             if (start == null || start < 0) {
                 start = 0;
             }
+
             if (rows != null && rows != -1) {
                 int totalRowsToQuery = start + rows;
                 pstmt.setMaxRows(totalRowsToQuery);
             }
+
             if (values != null && values.length > 0) {
                 for (int i = 0; i < values.length; ++i) {
                     pstmt.setObject(i + 1, values[i]);
                 }
             }
+
             try (ResultSet rs = pstmt.executeQuery()) {
+
                 DataListColumn[] columns = getColumns();
                 int count = 0;
                 while (rs.next()) {
@@ -295,26 +292,36 @@ public class JdbcDataListBinder extends DataListBinderDefault {
     }
 
     protected int executeQueryCount(DataList dataList, DataSource ds, String sql, String[] values) {
-        int count = -1;
-        if (sql != null && sql.trim().length() > 0) {
+        if (sql != null && !sql.trim().isEmpty()) {
+            final int argsCount = countArguments(sql);
+
             try (Connection con = ds.getConnection();
                  PreparedStatement pstmt = con.prepareStatement(sql);) {
 
-
                 if (values != null && values.length > 0) {
-                    for (int i = 0; i < values.length; ++i) {
+                    for (int i = 0; i < argsCount; ++i) {
                         pstmt.setObject(i + 1, values[i]);
                     }
                 }
 
                 try (ResultSet rs = pstmt.executeQuery()) {
                     if (rs.next()) {
-                        count = rs.getInt(1);
+                        return rs.getInt(1);
                     }
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
+                LogUtil.error(getClassName(), e, e.getMessage());
             }
+        }
+        return -1;
+    }
+
+    protected int countArguments(String sql) {
+        Pattern p = Pattern.compile("\\?");
+        Matcher m = p.matcher(sql);
+        int count = 0;
+        while (m.find()) {
+            count++;
         }
         return count;
     }
