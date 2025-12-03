@@ -1,0 +1,324 @@
+package com.kinnarastudio.kecakplugins.jdbc.datalist.binder;
+
+import com.kinnarastudio.kecakplugins.jdbc.JdbcTestConnectionApi;
+import oracle.sql.TIMESTAMP;
+import org.apache.commons.dbcp.BasicDataSourceFactory;
+import org.joget.apps.app.service.AppUtil;
+import org.joget.apps.datalist.model.*;
+import org.joget.apps.userview.model.Userview;
+import org.joget.commons.util.DynamicDataSourceManager;
+import org.joget.commons.util.LogUtil;
+import org.joget.plugin.base.PluginManager;
+import org.springframework.context.ApplicationContext;
+
+import javax.sql.DataSource;
+import java.sql.*;
+import java.util.*;
+
+public class PostgreJdbcDatalistBinder extends DataListBinderDefault {
+    public static String ALIAS = "temp";
+
+    private DataListColumn[] columns;
+
+    @Override
+    public DataListColumn[] getColumns() {
+        if (columns == null) {
+            try {
+                String sql = getQuerySelect(null, getProperties(), null, null, null, 0, 1);
+                DataSource ds = createDataSource();
+                columns = queryMetaData(ds, sql);
+            } catch (Exception ex) {
+                LogUtil.error(getClassName(), ex, "");
+                throw new RuntimeException(ex.toString());
+            }
+        }
+        return columns;
+    }
+
+    @Override
+    public String getPrimaryKeyColumnName() {
+        String primaryKey = "";
+        @SuppressWarnings("rawtypes")
+        Map props = getProperties();
+        if (props != null) {
+            primaryKey = props.get("primaryKey").toString();
+        }
+        return primaryKey;
+    }
+
+    @Override
+    public DataListCollection getData(DataList dataList, Map properties, DataListFilterQueryObject[] filterQueryObjects, String sort, Boolean desc, Integer start, Integer rows) {
+        try {
+            DataSource ds = createDataSource();
+            DataListFilterQueryObject filter = processFilterQueryObjects(filterQueryObjects);
+            String sql = getQuerySelect(dataList, properties, filter, sort, desc, start, rows);
+            DataListCollection results = executeQuery(ds, sql, filter.getValues(), start, rows);
+            return results;
+        } catch (Exception ex) {
+            LogUtil.error(getClassName(), ex, "");
+            return null;
+        }
+    }
+
+    @Override
+    public int getDataTotalRowCount(DataList dataList, @SuppressWarnings("rawtypes") Map properties, DataListFilterQueryObject[] filterQueryObjects) {
+        try {
+            DataSource ds = createDataSource();
+            DataListFilterQueryObject filter = processFilterQueryObjects(filterQueryObjects);
+            String sqlCount = getQueryCount(dataList, properties, filter);
+            int count = executeQueryCount(dataList, ds, sqlCount, filter.getValues());
+            return count;
+        } catch (Exception ex) {
+            LogUtil.error(getClassName(), ex, "");
+            return 0;
+        }
+    }
+
+    /**
+     * @return @throws Exception
+     */
+    protected DataSource createDataSource() {
+        ApplicationContext applicationContext = AppUtil.getApplicationContext();
+        @SuppressWarnings("rawtypes")
+        Map binderProps = getProperties();
+        DataSource ds = null;
+        String datasource = (String) binderProps.get("jdbcDatasource");
+        if (datasource != null && "default".equals(datasource)) {
+            ds = (DataSource) AppUtil.getApplicationContext().getBean("setupDataSource");
+        } else {
+            Properties dsProps = new Properties();
+            dsProps.put("driverClassName", binderProps.get("jdbcDriver").toString());
+            dsProps.put("url", binderProps.get("jdbcUrl").toString());
+            dsProps.put("username", binderProps.get("jdbcUser").toString());
+            dsProps.put("password", binderProps.get("jdbcPassword").toString());
+            try {
+                ds = BasicDataSourceFactory.createDataSource((Properties) dsProps);
+            } catch (Exception e) {
+                LogUtil.error(getClassName(), e, e.getMessage());
+            }
+        }
+        return ds;
+    }
+
+    protected DataListColumn[] queryMetaData(DataSource ds, String sql) throws SQLException {
+        ArrayList<DataListColumn> columns;
+        columns = new ArrayList<DataListColumn>();
+        try (Connection con = ds.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql);) {
+            String driver = getPropertyString("jdbcDriver");
+            String datasource = getPropertyString("jdbcDatasource");
+            if (datasource != null && "default".equals(datasource)) {
+                Properties properties = DynamicDataSourceManager.getProperties();
+                driver = properties.getProperty("workflowDriver");
+            }
+            if ("oracle.jdbc.driver.OracleDriver".equals(driver)) {
+                pstmt.setMaxRows(1);
+                pstmt.executeQuery();
+            }
+            ResultSetMetaData metaData = pstmt.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            for (int i = 1; i <= columnCount; ++i) {
+                String name = metaData.getColumnName(i);
+                String label = metaData.getColumnLabel(i);
+                String type = metaData.getColumnTypeName(i);
+                boolean sortable = true;
+                DataListColumn column = new DataListColumn(name, label, sortable);
+                column.setType(type);
+                columns.add(column);
+            }
+        }
+
+        DataListColumn[] columnArray = columns.toArray((DataListColumn[]) new DataListColumn[0]);
+        return columnArray;
+    }
+
+    protected String getQuerySelect(DataList dataList, @SuppressWarnings("rawtypes") Map properties, DataListFilterQueryObject filterQueryObject, String sort, Boolean desc, Integer start, Integer rows) {
+        String sql = properties.get("sql").toString();
+        sql = "SELECT * FROM (" + sql + ") " + ALIAS;
+        if (filterQueryObject != null) {
+            sql = insertQueryCriteria(sql, properties, filterQueryObject);
+        }
+        sql = insertQueryOrdering(sql, sort, desc);
+        return sql;
+    }
+
+    protected String getQueryCount(DataList dataList, @SuppressWarnings("rawtypes") Map properties, DataListFilterQueryObject filterQueryObject) {
+        Object sqlCount = properties.get("sqlCount");
+        if (sqlCount != null && !sqlCount.toString().isEmpty()) {
+            String sql = properties.get("sqlCount").toString();
+            sql = "SELECT " + getPropertyString("counterColumn") + " FROM (" + sql + ") " + ALIAS;
+            return sql;
+        } else {
+            String sql = properties.get("sql").toString();
+            sql = "SELECT * FROM (" + sql + ") " + ALIAS;
+            if (filterQueryObject != null) {
+                sql = insertQueryCriteria(sql, properties, filterQueryObject);
+            }
+            sql = "SELECT COUNT(*) FROM (" + sql + ") " + ALIAS + "_counter";
+            return sql;
+        }
+    }
+
+    protected String insertQueryCriteria(String sql, @SuppressWarnings("rawtypes") Map properties, DataListFilterQueryObject filterQueryObject) {
+        if (sql != null && sql.trim().length() > 0) {
+            String keyName = (String) properties.get(Userview.USERVIEW_KEY_NAME);
+            String keyValue = (String) properties.get(Userview.USERVIEW_KEY_VALUE);
+            String extra = "";
+            if (filterQueryObject != null && filterQueryObject.getQuery() != null && filterQueryObject.getQuery().trim().length() > 0) {
+                extra = filterQueryObject.getQuery();
+            }
+            if (sql.contains(USERVIEW_KEY_SYNTAX)) {
+                if (keyValue == null) {
+                    keyValue = "";
+                } else {
+                    keyValue = keyValue.trim();
+                }
+                sql = sql.replaceAll(USERVIEW_KEY_SYNTAX, keyValue);
+            } else if (keyName != null && !keyName.isEmpty() && keyValue != null && !keyValue.isEmpty()) {
+                if (extra.trim().length() > 0) {
+                    extra = extra + "AND ";
+                }
+                extra = extra + getName(keyName) + " = '" + keyValue + "' ";
+            }
+            if (extra != null && !extra.isEmpty()) {
+                sql = sql + " WHERE " + extra;
+            }
+        }
+        return sql;
+    }
+
+    protected String insertQueryOrdering(String sql, String sort, Boolean desc) {
+        if (sql != null && sql.trim().length() > 0 && sort != null && sort.trim().length() > 0) {
+            String clause = " " + getName(sort);
+            if (desc != null && desc.booleanValue()) {
+                clause = clause + " DESC";
+            }
+            sql = sql + " ORDER BY " + clause;
+        }
+        return sql;
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    protected DataListCollection executeQuery(DataSource ds, String sql, String[] values, Integer start, Integer rows) throws SQLException {
+        DataListCollection results = new DataListCollection();
+        try (Connection con = ds.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            if (start == null || start < 0) {
+                start = 0;
+            }
+            if (rows != null && rows != -1) {
+                int totalRowsToQuery = start + rows;
+                pstmt.setMaxRows(totalRowsToQuery);
+            }
+            if (values != null && values.length > 0) {
+                for (int i = 0; i < values.length; ++i) {
+                    pstmt.setObject(i + 1, values[i]);
+                }
+            }
+            try (ResultSet rs = pstmt.executeQuery()) {
+                DataListColumn[] columns = getColumns();
+                int count = 0;
+                while (rs.next()) {
+                    HashMap<String, String> row = new HashMap<String, String>();
+                    if (count++ < start) {
+                        continue;
+                    }
+                    if (columns != null) {
+                        for (DataListColumn column : columns) {
+                            String columnName = column.getName();
+                            Object obj = rs.getObject(columnName);
+                            String columnValue = obj != null ? obj.toString() : "";
+                            if (obj instanceof TIMESTAMP) {
+                                TIMESTAMP timestamp = (TIMESTAMP) obj;
+                                columnValue = timestamp.stringValue();
+                            }
+                            row.put(columnName, columnValue);
+                        }
+                    }
+                    results.add(row);
+                }
+            }
+        }
+        return results;
+    }
+
+    protected int executeQueryCount(DataList dataList, DataSource ds, String sql, String[] values) {
+        int count = -1;
+        if (sql != null && sql.trim().length() > 0) {
+            try (Connection con = ds.getConnection();
+                 PreparedStatement pstmt = con.prepareStatement(sql);) {
+
+
+                if (values != null && values.length > 0) {
+                    for (int i = 0; i < values.length; ++i) {
+                        pstmt.setObject(i + 1, values[i]);
+                    }
+                }
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        count = rs.getInt(1);
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return count;
+    }
+
+    public String getColumnName(String name) {
+        if ("dateCreated".equals(name = getName(name)) || "dateModified".equals(name)) {
+            name = "cast(" + name + " as string)";
+        }
+        return name;
+    }
+
+    protected String getName(String name) {
+        if (name != null && !name.isEmpty()) {
+            DataListColumn[] columns = getColumns();
+            for (DataListColumn column : columns) {
+                if (!name.equalsIgnoreCase(column.getName())) {
+                    continue;
+                }
+                name = column.getName();
+                break;
+            }
+            name = name.contains(" ") ? ALIAS + ".`" + name + "`" : ALIAS + '.' + name;
+        }
+        return name;
+    }
+
+    @Override
+    public String getName() {
+        return getLabel();
+    }
+
+    @Override
+    public String getVersion() {
+        PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
+        ResourceBundle resourceBundle = pluginManager.getPluginMessageBundle(getClassName(), "/messages/BuildNumber");
+        String buildNumber = resourceBundle.getString("build.number");
+        return buildNumber;
+    }
+
+    @Override
+    public String getDescription() {
+        return "Kecak Plugins; Artifact ID : " + getClass().getPackage().getImplementationTitle();
+    }
+
+    @Override
+    public String getLabel() {
+        return "PostgreSQL JDBC Datalist Binder";
+    }
+
+    @Override
+    public String getClassName() {
+        return getClass().getName();
+    }
+
+    @Override
+    public String getPropertyOptions() {
+        return AppUtil.readPluginResource(getClassName(), "/properties/datalist/binder/PostgreJdbcDataListBinder.json", new Object[]{JdbcTestConnectionApi.class.getName()}, true, "/messages/JdbcDataListBinder");
+    }
+}

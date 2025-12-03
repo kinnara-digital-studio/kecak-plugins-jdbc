@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import com.kinnarastudio.kecakplugins.jdbc.datalist.action.JdbcDataListAction;
 import com.kinnarastudio.kecakplugins.jdbc.datalist.binder.JdbcDataListBinder;
+import com.kinnarastudio.kecakplugins.jdbc.datalist.binder.PostgreJdbcDatalistBinder;
 import com.kinnarastudio.kecakplugins.jdbc.form.binder.JdbcLoadBinder;
 import com.kinnarastudio.kecakplugins.jdbc.form.binder.JdbcOptionsBinder;
 import com.kinnarastudio.kecakplugins.jdbc.form.binder.JdbcStoreBinder;
@@ -28,6 +29,7 @@ public class Activator implements BundleActivator {
         registrationList.add(context.registerService(JdbcDataListBinder.class.getName(), new JdbcDataListBinder(), null));
         registrationList.add(context.registerService(JdbcTestConnectionApi.class.getName(), new JdbcTestConnectionApi(), null));
         registrationList.add(context.registerService(JdbcDataListAction.class.getName(), new JdbcDataListAction(), null));
+        registrationList.add(context.registerService(PostgreJdbcDatalistBinder.class.getName(), new PostgreJdbcDatalistBinder(), null));
     }
 
     public void stop(BundleContext context) {
