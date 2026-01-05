@@ -1,6 +1,6 @@
 package com.kinnarastudio.kecakplugins.jdbc.process.tool;
 
-import com.kinnarastudio.kecakplugins.jdbc.JdbcTestConnectionApi;
+import com.kinnarastudio.kecakplugins.jdbc.app.webservice.JdbcTestConnectionApi;
 import oracle.sql.TIMESTAMP;
 import org.joget.apps.app.lib.DatabaseUpdateTool;
 import org.joget.apps.app.service.AppUtil;

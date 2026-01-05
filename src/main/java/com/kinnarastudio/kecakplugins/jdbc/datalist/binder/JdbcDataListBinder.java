@@ -1,6 +1,6 @@
 package com.kinnarastudio.kecakplugins.jdbc.datalist.binder;
 
-import com.kinnarastudio.kecakplugins.jdbc.JdbcTestConnectionApi;
+import com.kinnarastudio.kecakplugins.jdbc.app.webservice.JdbcTestConnectionApi;
 import oracle.sql.TIMESTAMP;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.joget.apps.app.service.AppUtil;

@@ -1,4 +1,4 @@
-package com.kinnarastudio.kecakplugins.jdbc;
+package com.kinnarastudio.kecakplugins.jdbc.app.webservice;
 
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.joget.apps.app.model.AppDefinition;
@@ -6,6 +6,9 @@ import org.joget.apps.app.service.AppPluginUtil;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.commons.util.LogUtil;
 import org.joget.commons.util.SecurityUtil;
+import org.joget.plugin.base.DefaultPlugin;
+import org.joget.plugin.base.PluginManager;
+import org.joget.plugin.base.PluginProperty;
 import org.joget.plugin.base.PluginWebSupport;
 import org.joget.workflow.model.service.WorkflowUserManager;
 import org.joget.workflow.util.WorkflowUtil;
@@ -16,10 +19,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.net.URLClassLoader;
 import java.sql.Connection;
+import java.util.Map;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
-public class JdbcTestConnectionApi implements PluginWebSupport {
+public class JdbcTestConnectionApi extends DefaultPlugin implements PluginWebSupport {
 	private final static String MESSAGE_PATH = "/messages/JdbcTestConnectionApi";
 	
 	/**
@@ -36,7 +42,7 @@ public class JdbcTestConnectionApi implements PluginWebSupport {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        
+
         String className = request.getParameter("className");
         
         String action = request.getParameter("action");
@@ -75,5 +81,33 @@ public class JdbcTestConnectionApi implements PluginWebSupport {
         } else {
             response.setStatus(HttpServletResponse.SC_NO_CONTENT);
         }
-    }    
+    }
+
+    @Override
+    public String getName() {
+        return "";
+    }
+
+    @Override
+    public String getVersion() {
+        PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
+        ResourceBundle resourceBundle = pluginManager.getPluginMessageBundle(getClass().getName(), "/messages/BuildNumber");
+        String buildNumber = resourceBundle.getString("build.number");
+        return buildNumber;
+    }
+
+    @Override
+    public String getDescription() {
+        return getClass().getPackage().getImplementationTitle();
+    }
+
+    @Override
+    public PluginProperty[] getPluginProperties() {
+        return null;
+    }
+
+    @Override
+    public Object execute(Map map) {
+        return null;
+    }
 }

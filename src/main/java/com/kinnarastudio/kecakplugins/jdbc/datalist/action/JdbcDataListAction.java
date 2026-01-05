@@ -1,6 +1,6 @@
 package com.kinnarastudio.kecakplugins.jdbc.datalist.action;
 
-import com.kinnarastudio.kecakplugins.jdbc.JdbcTestConnectionApi;
+import com.kinnarastudio.kecakplugins.jdbc.app.webservice.JdbcTestConnectionApi;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.datalist.model.DataList;
