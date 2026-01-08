@@ -129,7 +129,7 @@ public class JdbcOptionsBinder extends FormBinder implements FormLoadOptionsBind
                         FormRow row = new FormRow();
 
                         String value = rs.getString(1);
-                        String label = rs.getString(2);
+                        String label = columnsNumber == 1 ? value : rs.getString(2);
 
                         row.setProperty(FormUtil.PROPERTY_VALUE, (value != null) ? value : "");
                         row.setProperty(FormUtil.PROPERTY_LABEL, (label != null) ? AppUtil.processHashVariable(label, null, null, null) : "");
